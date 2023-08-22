@@ -23,7 +23,7 @@ ACLeap Referral is a standards-based web application platform for patients refer
   * The application itself
 
 ## Setup development environment
-1. Clone the application using https://github.com/chronic-care/acleap-referral.git
+1. Clone the application using [https://github.com/chronic-care/acleap-referral.git]
 2. Checkout the 'master' branch
 3. With __administrative__ privileges, run:
     * `npm install yarn -g`
