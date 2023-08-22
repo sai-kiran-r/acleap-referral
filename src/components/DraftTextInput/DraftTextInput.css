@@ -1,0 +1,59 @@
+.dti-wrapper  {
+    
+}
+
+.dti-wrapper a {
+    color: #212121 !important;
+}
+
+.dti-wrapper a:hover {
+    text-decoration: none !important;
+}
+
+.dti-editor {
+    border: 1px solid #c4c4c4 !important;
+    padding: 12px 14px !important;
+    border-radius: 4px !important;
+    height: 200px !important;
+    overflow: auto !important;
+}
+
+.dti-toolbar {
+    border: 1px solid #c4c4c4 !important;
+    border-radius: 4px !important;
+}
+
+.dti-wrapper .public-DraftStyleDefault-block {
+    margin: 0 !important;
+}
+
+.rdw-option-wrapper:hover {
+    box-shadow: none !important;
+    border-color: #212121 !important;
+}
+
+.rdw-option-wrapper {
+    border-radius: 4px !important;
+}
+
+.rdw-option-disabled {
+    pointer-events: none !important;
+}
+
+.rdw-dropdown-wrapper:hover {
+    box-shadow: none !important;
+    border-color: #212121 !important;
+}
+
+.rdw-dropdown-wrapper:focus {
+    box-shadow: none !important;
+    border-color: #212121 !important;
+}
+
+.rdw-dropdown-wrapper {
+    border-radius: 4px !important;
+}
+
+.rdw-dropdown-disabled {
+    pointer-events: none !important;
+}
