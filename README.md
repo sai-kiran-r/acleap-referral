@@ -4,7 +4,6 @@ AC Leap Referral App
 # ACLeap Referral on FHIR app
 ACLeap Referral is a standards-based web application platform for patients referral
 
-ACLeap Referral supports both [SMART](https://smarthealthit.org/) standalone launch and EHR launch from a patient portal.
 
 # Development Details
 
@@ -22,8 +21,6 @@ ACLeap Referral supports both [SMART](https://smarthealthit.org/) standalone lau
 ## Branches
 * 'master' branch
   * The application itself
-* 'gh-pages' branch
-  * Created automatically by the 'npm run deploy' command. Used to build and deploy the application for use in github.io
 
 ## Setup development environment
 1. Clone the application using https://github.com/chronic-care/acleap-referral.git
