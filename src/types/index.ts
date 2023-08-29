@@ -26,3 +26,11 @@ export type ACLPatientQueue = {
     lastName: string,
 }
 
+export type ACLPatientAlert = {
+    date?: string,
+    summary?: string,
+    status?: ReferralStatus,
+    referralType?: string,
+    firstName?: string,
+    lastName?: string,
+}

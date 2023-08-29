@@ -1,5 +1,5 @@
 import React from "react";
-import { ACLPatientQueue } from "../../types";
+import { ACLPatientAlert } from "../../types";
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, Grid, InputLabel, MenuItem, OutlinedInput, Select, SelectChangeEvent, Typography } from "@mui/material";
 import { ReferralStatus } from "../../utils/constants";
 import { RawDraftContentState } from "draft-js";
@@ -9,7 +9,7 @@ import { grey } from "@mui/material/colors";
 type ReferralStatusDialogProps = {
     open: boolean,
     onClose: () => void,
-    patient?: ACLPatientQueue,
+    patient?: ACLPatientAlert,
 }
 
 const ReferralStatusDialog = (props: ReferralStatusDialogProps) => {
@@ -32,7 +32,7 @@ const ReferralStatusDialog = (props: ReferralStatusDialogProps) => {
 
     return (
         <Dialog disableEscapeKeyDown open={props.open} onClose={handleClose} maxWidth={'md'}>
-            <DialogTitle>Referral Id: {props.patient?.referralId}</DialogTitle>
+            <DialogTitle>Description</DialogTitle>
             <DialogContent dividers>
                 <Box>
                     <Typography variant="subtitle2" color={grey[800]} m={1}><b>Date served: {new Date().toDateString()}</b></Typography>

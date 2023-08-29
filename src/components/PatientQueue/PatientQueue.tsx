@@ -1,7 +1,6 @@
 import { Card, Chip, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
 import React from "react";
 import { ReferralStatus } from "../../utils/constants";
-import ReferralStatusDialog from "../ReferralStatusDialog";
 import { ACLPatientQueue } from "../../types";
 
 function createData(
@@ -38,22 +37,9 @@ const getStatusUi = (status: ReferralStatus) => {
 }
 
 const PatientQueue = () => {
-    const [dialogOpen, setDialogOpen] = React.useState(false)
-    const [selectedPatient, setSelectedPatient] = React.useState<ACLPatientQueue | undefined>(undefined)
-
-    const handleRowClick = (row: ACLPatientQueue) => {
-        setSelectedPatient(row)
-        setDialogOpen(true)
-    }
-
-    const handleClose = () => {
-        setDialogOpen(false)
-        setSelectedPatient(undefined)
-    }
 
     return (
         <>
-            <ReferralStatusDialog open={dialogOpen} onClose={handleClose} patient={selectedPatient} />
             <Typography variant="h6" mb={2}>Patient queue</Typography>
             <TableContainer component={({ children, ...props }) => <Card {...props} variant="outlined">{children}</Card>}>
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
@@ -78,10 +64,6 @@ const PatientQueue = () => {
                                     ':hover': {
                                         backgroundColor: '#f5f5f5',
                                     }
-                                }}
-                                onClick={(e) => {
-                                    e.preventDefault()
-                                    handleRowClick(row)
                                 }}
                             >
                                 <TableCell component="th" scope="row">
