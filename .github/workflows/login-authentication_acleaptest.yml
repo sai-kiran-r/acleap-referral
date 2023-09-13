@@ -21,10 +21,10 @@ jobs:
         with:
           node-version: '16.x'
 
-      - name: npm install, build, and test
+      - name: yarn install, build, and test
         run: |
-          yarn install
-          yarn build
+          yarn install --network-timeout 1000000
+          yarn build --network-timeout 1000000
           yarn test
       
       - name: Upload artifact for deployment job
