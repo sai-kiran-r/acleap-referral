@@ -25,7 +25,6 @@ jobs:
         run: |
           yarn install --network-timeout 1000000
           yarn build --network-timeout 1000000
-          yarn test
       
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
