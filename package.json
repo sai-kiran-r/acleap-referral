@@ -6,15 +6,17 @@
     "dependencies": {
         "@azure/msal-browser": "^3.1.0",
         "@azure/msal-react": "^2.0.3",
-        "@emotion/react": "^11.8.2",
-        "@emotion/styled": "^11.8.1",
+        "@emotion/react": "^11.11.1",
+        "@emotion/styled": "^11.11.0",
+        "@floating-ui/dom": "^1.5.3",
         "@fortawesome/fontawesome-svg-core": "^1.2.29",
         "@fortawesome/free-regular-svg-icons": "^5.13.1",
         "@fortawesome/free-solid-svg-icons": "^5.13.1",
         "@fortawesome/react-fontawesome": "^0.1.11",
         "@mui/icons-material": "^5.10.14",
         "@mui/lab": "^5.0.0-alpha.74",
-        "@mui/material": "^5.5.2",
+        "@mui/material": "^5.14.9",
+        "@mui/x-data-grid": "^6.14.0",
         "@testing-library/jest-dom": "^4.2.4",
         "@testing-library/react": "^9.3.2",
         "@testing-library/user-event": "^7.1.2",
@@ -25,6 +27,8 @@
         "@types/react-dom": "^16.9.6",
         "@types/react-draft-wysiwyg": "^1.13.4",
         "@types/react-youtube": "^7.6.2",
+        "@typescript-eslint/eslint-plugin": "^6.7.0",
+        "@typescript-eslint/parser": "^6.7.0",
         "array.prototype.fill": "^1.0.2",
         "axios": "^0.27.2",
         "bootstrap": "^4.5.0",
@@ -63,7 +67,7 @@
         "cors": "^2.8.5",
         "express": "^4.17.1",
         "gh-pages": "^3.1.0",
-        "typescript": "^3.8.3"
+        "typescript": "5.1.6"
     },
     "scripts": {
         "start": "react-scripts start",
