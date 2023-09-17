@@ -14,6 +14,9 @@ export type ACLPatient = {
     age?: number;
     race?: string;
     address?: string;
+    sexAtBirth?: string;
+    genderIdentity?: string;
+    sexualOrientation?: string;
 }
 
 export type ACLPatientQueue = {
@@ -33,4 +36,36 @@ export type ACLPatientAlert = {
     referralType?: string,
     firstName?: string,
     lastName?: string,
+}
+
+export type ACLServiceRequest = {
+    dateCreated: string,
+    serviceRequested: string,
+    referralID: string,
+    intialReferralNote: string,
+}
+
+export type ACLActiveReferrals = {
+    dateServed: string,
+    lastName: string,
+    firstName: string,
+    status: ReferralStatus,
+    serviceRequested: string,
+    owner: string,
+}
+
+export type ACLArchiveReferrals = {
+    dateServed: string,
+    lastName: string,
+    firstName: string,
+    status: ReferralStatus,
+    serviceRequested: string,
+    owner: string,
+}
+
+export type ACLPatientNoteHistory = {
+    id: any,
+    noteText: string,
+    author: string,
+    owner: string,
 }
