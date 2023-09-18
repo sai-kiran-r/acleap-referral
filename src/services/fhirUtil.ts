@@ -1,5 +1,5 @@
-import { Patient, ServiceRequest } from "fhir/r4";
-import { ACLPatient, ACLServiceRequest } from "../types";
+import { Patient } from "fhir/r4";
+import { ACLPatient } from "../types";
 
 export const transformPatient = (patient: Patient): ACLPatient => {
     const raceExtension = patient.extension?.find(ext => ext.url.includes('StructureDefinition/us-core-race'));

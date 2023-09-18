@@ -128,9 +128,6 @@ const ReferralStatusDialog = (props: ReferralStatusDialogProps) => {
         setStatus(event.target.value as ReferralStatus);
     };
 
-    const emptyRows =
-        page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
-
     const handleChangePage = (
         event: React.MouseEvent<HTMLButtonElement> | null,
         newPage: number,

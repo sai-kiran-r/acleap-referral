@@ -1,19 +1,6 @@
 import { Card, Table, TableBody, TableCell, TableContainer, TableRow, Typography } from "@mui/material";
 import React from "react";
-import { ReferralStatus } from "../../utils/constants";
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-
-function createData(
-    id:number,
-    dateServed: string,
-    lastName: string,
-    firstName: string,
-    status: ReferralStatus,
-    serviceRequested: string,
-    owner: string,
-) {
-    return { id,dateServed, firstName, lastName, status, serviceRequested, owner }
-}
 
 const columns: GridColDef[] = [
     { field: 'dateServed', headerName: 'Date served', width:240 },

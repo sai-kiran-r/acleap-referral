@@ -29,7 +29,7 @@ const NewReferrals = () => {
 
       React.useEffect(() => {
         (async () => {
-            const { patient, serviceRequests } = await getPatientAndServiceRequests();
+            const { patient } = await getPatientAndServiceRequests();
             const transformedPatient:any = transformPatient(patient);
             transformedPatient.serviceRequested = "Housing - Translife Care";
             transformedPatient.dateCreated = "01/01/2023"
