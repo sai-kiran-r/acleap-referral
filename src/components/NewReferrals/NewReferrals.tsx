@@ -7,7 +7,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableRow from '@mui/material/TableRow';
 import { ACLPatient } from "../../types";
 import ReferralStatusDialog from "../ReferralStatusDialog";
-import { transformPatient } from "../../services/fhirUtil";
+import { transformPatient ,transformServiceRequests} from "../../services/fhirUtil";
 import { getPatientAndServiceRequests} from "../../services/fhirServices";
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 
@@ -25,18 +25,24 @@ const NewReferrals = () => {
 
     const [dialogOpen, setDialogOpen] = React.useState(false)
     const [selectedPatient, setSelectedPatient] = React.useState<ACLPatient  | undefined>({})
-    const [patient, setPatient] = React.useState([])
+    const [services, setServices] = React.useState([])
 
       React.useEffect(() => {
         (async () => {
-            const { patient } = await getPatientAndServiceRequests();
+            const { patient ,serviceRequests} = await getPatientAndServiceRequests();
+
             const transformedPatient:any = transformPatient(patient);
-            transformedPatient.serviceRequested = "Housing - Translife Care";
-            transformedPatient.dateCreated = "01/01/2023"
-            transformedPatient.referralSource = "Heartland Alliance Health"
-            const arrapatient:any = [transformedPatient]
-            console.log("arrapatient", arrapatient);
-            setPatient(arrapatient)
+            const transformedServices = transformServiceRequests(serviceRequests);
+
+            const data = transformedServices.map((items:any)=>{
+                return{
+                    ...items,
+                    firstName:transformedPatient.firstName,
+                    lastName:transformedPatient.lastName,
+                }
+            })
+
+            setServices(data)
         })();
     }, [])
 
@@ -55,7 +61,7 @@ const NewReferrals = () => {
             <ReferralStatusDialog open={dialogOpen} onClose={handleClose} patient={selectedPatient} />
             <Typography variant="h6" mb={2}>New Referrals</Typography>
             <div style={{  width: '100%' }}>
-            {patient?.length === 0 ? <TableContainer component={({ children, ...props }) => <Card {...props} variant="outlined">{children}</Card>}>
+            {services?.length === 0 ? <TableContainer component={({ children, ...props }) => <Card {...props} variant="outlined">{children}</Card>}>
                 <Table sx={{ minWidth: 700 }} aria-label="simple table">
                     <TableBody>
                     <TableRow>
@@ -72,7 +78,7 @@ const NewReferrals = () => {
                 </Table>
             </TableContainer>
             :<DataGrid
-                rows={patient}
+                rows={services}
                 onRowClick={(e:any) => {
                   handleRowClick(e)
               }}

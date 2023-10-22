@@ -23,7 +23,6 @@ const Login: React.FC = () => {
           error: any;
           accountInfo: IAccountInfo;
         }) => {
-          console.log('accountInfo',accountInfo);
           switch (authenticationState) {
             case AuthenticationState.Authenticated:
               return (

@@ -1,5 +1,6 @@
-import { Patient } from "fhir/r4";
-import { ACLPatient } from "../types";
+import { Patient, ServiceRequest } from "fhir/r4";
+import { ACLPatient, ACLServiceRequest } from "../types";
+import moment from 'moment';
 
 export const transformPatient = (patient: Patient): ACLPatient => {
     const raceExtension = patient.extension?.find(ext => ext.url.includes('StructureDefinition/us-core-race'));
@@ -8,12 +9,11 @@ export const transformPatient = (patient: Patient): ACLPatient => {
     const sexAtBirthExtension = patient.extension?.find(ext => ext.url.includes('StructureDefinition/us-core-birthsex'));
     const sexAtBirth = sexAtBirthExtension ? sexAtBirthExtension.valueCode : undefined;
 
-    const genderIdentityExtension = patient.extension?.find(ext => ext.url.includes('StructureDefinition/genderIdentity'));
-    console.log('genderIdentityExtension',genderIdentityExtension)
-    const genderIdentity = genderIdentityExtension ? genderIdentityExtension?.extension?.find(ext => ext.url === "text")?.valueString: undefined; // Need to confirm
+    const genderIdentityExtension = patient.extension?.find(ext => ext.url.includes('StructureDefinition/athena-patient-extension-genderIdentity'));
+    const genderIdentity = genderIdentityExtension ? genderIdentityExtension?.valueCodeableConcept?.text: undefined;
 
-    const sexualOrientationExtension = patient.extension?.find(ext => ext.url.includes('StructureDefinition/sexualOrientation'));
-    const sexualOrientation = sexualOrientationExtension ? sexualOrientationExtension?.extension?.find(ext => ext.url === "text")?.valueString: undefined; // Need to confirm
+    const sexualOrientationExtension = patient.extension?.find(ext => ext.url.includes('StructureDefinition/athena-patient-extension-sexualOrientation'));
+    const sexualOrientation = sexualOrientationExtension ? sexualOrientationExtension?.valueCodeableConcept?.text: undefined;
 
     const id = patient.identifier?.find(id => id?.system?.includes('NamingSystem/identifier'))?.value;
     const fhirid = patient.id;
@@ -51,3 +51,24 @@ export const transformPatient = (patient: Patient): ACLPatient => {
         sexualOrientation,
     }
 }
+
+
+export const transformServiceRequests = (serviceRequests: ACLServiceRequest) => {
+    return serviceRequests.map((serviceRequest: ServiceRequest ,index:number) => {
+
+      const dateCreated = moment(serviceRequest.meta?.lastUpdated).format('MM/DD/YYYY');
+      const intialReferralNote = serviceRequest.note?.[0]?.text;
+      const referralID = serviceRequest.identifier?.[0]?.value;
+      const serviceRequested = serviceRequest.code?.text;
+      const referralSource = serviceRequest.requester?.display;
+
+      return {
+        dateCreated,
+        intialReferralNote,
+        referralID,
+        serviceRequested,
+        referralSource,
+        id:index
+      };
+    });
+  };

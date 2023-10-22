@@ -1,5 +1,5 @@
 import React from "react";
-import { ACLPatient, ACLPatientAlert } from "../../types";
+import { ACLPatient, ACLServiceRequest } from "../../types";
 import { Box, Button, Card, Container, Dialog, TextField, DialogActions, DialogContent, Paper, DialogTitle, FormControl,
          Grid, InputLabel, MenuItem, OutlinedInput, Select, SelectChangeEvent, Table, TableBody, TableCell, TableContainer,
          TableHead, TableRow, Typography, TablePagination, TableFooter } from "@mui/material";
@@ -7,7 +7,7 @@ import { ReferralStatus } from "../../utils/constants";
 import { useTheme } from '@mui/material/styles';
 import { grey, blue, red } from "@mui/material/colors";
 import { getPatientAndServiceRequests} from "../../services/fhirServices";
-import { transformPatient } from "../../services/fhirUtil";
+import { transformPatient, transformServiceRequests } from "../../services/fhirUtil";
 import IconButton from '@mui/material/IconButton';
 import FirstPageIcon from '@mui/icons-material/FirstPage';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
@@ -17,7 +17,7 @@ import LastPageIcon from '@mui/icons-material/LastPage';
 type ReferralStatusDialogProps = {
     open: boolean,
     onClose: () => void,
-    patient?: ACLPatientAlert,
+    patient?: ACLServiceRequest,
 }
 
 interface TablePaginationActionsProps {
@@ -104,16 +104,19 @@ const ReferralStatusDialog = (props: ReferralStatusDialogProps) => {
 
     const [patient, setPatient] = React.useState<ACLPatient | 'loading' | 'error'>('loading')
     const [status, setStatus] = React.useState<ReferralStatus | undefined>(props.patient?.status)
+    const [serviceRequest, setServiceRequest] = React.useState<ACLServiceRequest>({})
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
     React.useEffect(() => {
         (async () => {
             const { patient, serviceRequests } = await getPatientAndServiceRequests();
-            console.log("Transformed Patient data:", patient);
-            console.log("Transformed Service Requests:", serviceRequests);
+
             const transformedPatient = transformPatient(patient)
+            const transformedServices = transformServiceRequests(serviceRequests);
+
             setPatient(transformedPatient)
+            setServiceRequest(transformedServices);
         })();
     }, [])
 
@@ -171,7 +174,7 @@ const ReferralStatusDialog = (props: ReferralStatusDialogProps) => {
                                                 <Typography variant="body1" my={1}><b>Ethnicity: </b>{patient.ethnicity}</Typography>
                                                 <Typography variant="body1" my={1}><b>Phone: </b>{patient.phone}</Typography>
                                                 <Typography variant="body1" my={1}><b>E-mail: </b>{patient.email}</Typography>
-                                                <Typography variant="body1" my={1}><b>Referral ID: </b>{patient.id}</Typography>
+                                                <Typography variant="body1" my={1}><b>Referral ID: </b>{props.patient?.referralID}</Typography>
                                                 </>
                                                 )}
                                             </Paper>
@@ -186,11 +189,11 @@ const ReferralStatusDialog = (props: ReferralStatusDialogProps) => {
                                                 <Typography variant="subtitle1" color={red}>Unable to load patient data. Please login.</Typography>
                                                 ) : (
                                                 <>
-                                                <Typography variant="body1" my={1}><b>Service Requested </b>Housing - Translife Care</Typography>
+                                                <Typography variant="body1" my={1}><b>Service Requested </b>{props.patient?.serviceRequested}</Typography>
                                                 <Typography variant="body1" my={1}><b>Race </b>{patient.race}</Typography>
                                                 <Typography variant="body1" my={1}><b>Sex at Birth </b>{patient.sexAtBirth}</Typography>
-                                                <Typography variant="body1" my={1}><b>Gender Identity </b>Cisgender Female</Typography>
-                                                <Typography variant="body1" my={1}><b>Sexual Orientation </b>Bisexual</Typography>
+                                                <Typography variant="body1" my={1}><b>Gender Identity </b>{patient.genderIdentity}</Typography>
+                                                <Typography variant="body1" my={1}><b>Sexual Orientation </b>{patient.sexualOrientation}</Typography>
                                                 </>
                                                 )}
                                             </Paper>
@@ -204,7 +207,7 @@ const ReferralStatusDialog = (props: ReferralStatusDialogProps) => {
                         <Card variant="outlined">
                             <div style={{ height:350, padding: '16px' }}>
                             <Typography><b>Initial Referral Note:</b></Typography>
-                            <Typography>test #3\r\nComments and instructions will show up here\n..</Typography>
+                            <Typography>{props.patient?.intialReferralNote}</Typography>
                             </div>
                         </Card>
                     </Grid>
@@ -281,6 +284,8 @@ const ReferralStatusDialog = (props: ReferralStatusDialogProps) => {
                                         >
                                             <MenuItem value={"Armando Garcia"}>Armando Garcia</MenuItem>
                                             <MenuItem value={"Owen Davis"}>Owen Davis</MenuItem>
+                                            <MenuItem value={"Kevin Pleasant"}>Kevin Pleasant</MenuItem>
+                                            <MenuItem value={"OMeghan Williams"}>Meghan Williams</MenuItem>
                                         </Select>
                                     </FormControl>
                                     </Grid>

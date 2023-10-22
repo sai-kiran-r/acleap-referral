@@ -1,6 +1,6 @@
 import FHIR from 'fhirclient'
 
-const meldAcLeapSchScope = "launch launch/patient openid fhirUser patient/Patient.read patient/Practitioner.read patient/RelatedPerson.read patient/Condition.read patient/DiagnosticReport.read patient/Observation.read patient/Procedure.read patient/CarePlan.read patient/CareTeam.read patient/Goal.read patient/Immunization.read patient/MedicationRequest.read patient/ServiceRequest.read patient/Task.read patient/Questionnaire.read patient/QuestionnaireResponse.write patient/Goal.write patient/MedicationRequest.write patient/Condition.write"
+const meldAcLeapSchScope = "launch launch/patient patient/ServiceRequest.read patient/Patient.read fhirUser openid"
 
 FHIR.oauth2.authorize([
     {

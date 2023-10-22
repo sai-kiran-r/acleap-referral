@@ -1,7 +1,7 @@
 import { ReferralStatus } from "../utils/constants";
 
 export type ACLPatient = {
-    id?: string;
+    id?: any;
     fhirId?: string;
     fullName?: string;
     firstName?: string;
@@ -29,20 +29,26 @@ export type ACLPatientQueue = {
     lastName: string,
 }
 
-export type ACLPatientAlert = {
-    date?: string,
-    summary?: string,
-    status?: ReferralStatus,
-    referralType?: string,
-    firstName?: string,
-    lastName?: string,
-}
+// export type ACLPatientAlert = {
+//     date?: string,
+//     summary?: string,
+//     status?: ReferralStatus,
+//     referralType?: string,
+//     firstName?: string,
+//     lastName?: string,
+// }
 
 export type ACLServiceRequest = {
-    dateCreated: string,
-    serviceRequested: string,
-    referralID: string,
-    intialReferralNote: string,
+    [x:string]: any;
+    dateCreated?: string,
+    serviceRequested?: string,
+    referralID?: string,
+    intialReferralNote?: string,
+    referralSource?: string,
+    firstName?: string,
+    lastName?: string,
+    id?: number,
+
 }
 
 export type ACLActiveReferrals = {
