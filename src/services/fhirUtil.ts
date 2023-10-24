@@ -5,6 +5,16 @@ export const transformPatient = (patient: Patient): ACLPatient => {
     const raceExtension = patient.extension?.find(ext => ext.url.includes('StructureDefinition/us-core-race'));
     const race = raceExtension ? raceExtension?.extension?.find(ext => ext.url === "text")?.valueString : undefined;
 
+    const sexAtBirthExtension = patient.extension?.find(ext => ext.url.includes('StructureDefinition/us-core-birthsex'));
+    const sexAtBirth = sexAtBirthExtension ? sexAtBirthExtension.valueCode : undefined;
+
+    const genderIdentityExtension = patient.extension?.find(ext => ext.url.includes('StructureDefinition/genderIdentity'));
+    console.log('genderIdentityExtension',genderIdentityExtension)
+    const genderIdentity = genderIdentityExtension ? genderIdentityExtension?.extension?.find(ext => ext.url === "text")?.valueString: undefined; // Need to confirm
+
+    const sexualOrientationExtension = patient.extension?.find(ext => ext.url.includes('StructureDefinition/sexualOrientation'));
+    const sexualOrientation = sexualOrientationExtension ? sexualOrientationExtension?.extension?.find(ext => ext.url === "text")?.valueString: undefined; // Need to confirm
+
     const id = patient.identifier?.find(id => id?.system?.includes('NamingSystem/identifier'))?.value;
     const fhirid = patient.id;
 
@@ -36,5 +46,8 @@ export const transformPatient = (patient: Patient): ACLPatient => {
         email: patient.telecom?.find(telecom => telecom.system === "email")?.value,
         address: patient.address?.[0]?.line?.[0],
         race,
+        sexAtBirth,
+        genderIdentity,
+        sexualOrientation,
     }
 }

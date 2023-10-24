@@ -1,6 +1,15 @@
 export enum ReferralStatus {
-    PLANNED = "planned",
-    IN_PROGRESS = "in-progress",
-    SCHEDULED = "scheduled",
-    COMPLETE = "complete",
+    PLANNED = "Planned",
+    IN_PROGRESS = "In-Progress",
+    ENGAGED = "Engaged",
+    CANCELLED = 'Cancelled',
+    COMPLETE = "Complete",
+}
+
+export enum Owner {
+    PLANNED = "Planned",
+    IN_PROGRESS = "In-Progress",
+    ENGAGED = "Engaged",
+    CANCELLED = 'Cancelled',
+    COMPLETE = "Complete",
 }
