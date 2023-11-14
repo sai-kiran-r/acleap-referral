@@ -1,8 +1,11 @@
-import { Patient, ServiceRequest } from "fhir/r4";
-import { ACLPatient, ACLServiceRequest } from "../types";
+import { Patient, ServiceRequest, Task, PractitionerRole } from "fhir/r4";
+import { ACLPatient, ACLServiceRequest, ACLTasks, ACLPractitionerRole} from "../types";
 import moment from 'moment';
 
-export const transformPatient = (patient: Patient): ACLPatient => {
+export const transformPatient = (patient: any): ACLPatient => {
+
+  return patient.map((patient: Patient ,index:number) => {
+    
     const raceExtension = patient.extension?.find(ext => ext.url.includes('StructureDefinition/us-core-race'));
     const race = raceExtension ? raceExtension?.extension?.find(ext => ext.url === "text")?.valueString : undefined;
 
@@ -16,7 +19,7 @@ export const transformPatient = (patient: Patient): ACLPatient => {
     const sexualOrientation = sexualOrientationExtension ? sexualOrientationExtension?.valueCodeableConcept?.text: undefined;
 
     const id = patient.identifier?.find(id => id?.system?.includes('NamingSystem/identifier'))?.value;
-    const fhirid = patient.id;
+    const patientFhirId = patient.id;
 
     const gender = patient.gender ? patient.gender?.charAt(0).toUpperCase() + patient.gender.slice(1) : undefined;
 
@@ -34,7 +37,7 @@ export const transformPatient = (patient: Patient): ACLPatient => {
 
     return {
         id,
-        fhirId: fhirid,
+        patientFhirId,
         fullName: name,
         firstName,
         lastName,
@@ -50,7 +53,8 @@ export const transformPatient = (patient: Patient): ACLPatient => {
         genderIdentity,
         sexualOrientation,
     }
-}
+  });
+};
 
 
 export const transformServiceRequests = (serviceRequests: ACLServiceRequest) => {
@@ -61,6 +65,8 @@ export const transformServiceRequests = (serviceRequests: ACLServiceRequest) => 
       const referralID = serviceRequest.identifier?.[0]?.value;
       const serviceRequested = serviceRequest.code?.text;
       const referralSource = serviceRequest.requester?.display;
+      const serviceRequestFhirId = serviceRequest.subject.reference?.replace("Patient/","");
+      const serviceRequestId = serviceRequest?.id;
 
       return {
         dateCreated,
@@ -68,7 +74,58 @@ export const transformServiceRequests = (serviceRequests: ACLServiceRequest) => 
         referralID,
         serviceRequested,
         referralSource,
-        id:index
+        id:index,
+        serviceRequestFhirId,
+        serviceRequestId
       };
     });
-  };
+};
+
+export const transformTasks = (tasks: ACLTasks ) => {
+  return tasks.map((task: Task ,index:number) => {
+
+    const taskAuthoredDate = moment(task.authoredOn).format('MM/DD/YYYY');
+    const taskDescription = task.code?.coding?.[0]?.display;
+    const taskStatus = task.status;
+    const taskId = task.focus?.reference?.replace("ServiceRequest/",'') || '';
+    const taskOwner = task.owner?.display;
+    const taskBusinessStatus = task.businessStatus?.text;
+    const taskRequester = task.requester?.display;
+    const taskNotes = task.note?.map((taskNote: any) => {
+      const noteAuthoredDate = moment(taskNote.time).format('MM/DD/YYYY');
+      const noteText = taskNote?.text;
+      const noteAuthor = taskNote.authorReference?.display;
+      return {
+        noteAuthoredDate,
+        noteText,
+        noteAuthor
+      };
+    });
+
+    return {
+      taskAuthoredDate,
+      taskDescription,
+      taskStatus,
+      taskId,
+      taskOwner,
+      taskBusinessStatus,
+      taskRequester,
+      id: index,
+      taskNotes
+    };
+  });
+};
+
+export const transformPractitionerRole = (practitionerRole: ACLPractitionerRole ) => {
+  return practitionerRole.map((practitionerRole: PractitionerRole) => {
+    const practitionerName = practitionerRole.practitioner?.display;
+    const practitionerid = practitionerRole?.practitioner?.reference?.replace("Practitioner/","");
+    const practitionerOrganizationName = practitionerRole.organization?.display;
+
+    return{
+      practitionerName,
+      practitionerid,
+      practitionerOrganizationName
+    }
+  });
+};

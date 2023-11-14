@@ -1,8 +1,9 @@
 import { ReferralStatus } from "../utils/constants";
 
 export type ACLPatient = {
+    [x:string]: any;
     id?: any;
-    fhirId?: string;
+    patientFhirId?: string;
     fullName?: string;
     firstName?: string;
     lastName?: string;
@@ -39,16 +40,16 @@ export type ACLPatientQueue = {
 // }
 
 export type ACLServiceRequest = {
-    [x:string]: any;
+    [x:string]: any,
     dateCreated?: string,
     serviceRequested?: string,
     referralID?: string,
     intialReferralNote?: string,
     referralSource?: string,
-    firstName?: string,
-    lastName?: string,
-    id?: number,
-
+    // firstName?: string,
+    // lastName?: string,
+    serviceRequestId?: string,
+    serviceRequestFhirId?: string,
 }
 
 export type ACLActiveReferrals = {
@@ -74,4 +75,23 @@ export type ACLPatientNoteHistory = {
     noteText: string,
     author: string,
     owner: string,
+}
+
+export type ACLTasks = {
+    [x:string]: any,
+    taskDescription?: string,
+    taskRequester?: string,
+    taskAuthoredDate?: string,
+    taskId?: string,
+    taskStatus?: string,
+    taskBusinessStatus?: ReferralStatus,
+    taskOwner?: string,
+    taskNotes?: []
+}
+
+export type ACLPractitionerRole = {
+    [x:string]: any,
+    practitionerName?: string,
+    practitionerid?: string,
+    practitionerOrganizationName?: string,
 }

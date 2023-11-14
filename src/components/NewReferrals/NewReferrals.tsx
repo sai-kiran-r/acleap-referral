@@ -5,15 +5,14 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableRow from '@mui/material/TableRow';
-import { ACLPatient } from "../../types";
+import { ACLPatient, ACLServiceRequest, ACLTasks, ACLPractitionerRole } from "../../types";
 import ReferralStatusDialog from "../ReferralStatusDialog";
-import { transformPatient ,transformServiceRequests} from "../../services/fhirUtil";
-import { getPatientAndServiceRequests} from "../../services/fhirServices";
+import { transformPatient ,transformServiceRequests, transformTasks, transformPractitionerRole } from "../../services/fhirUtil";
+import {  getResources } from "../../services/fhirServices";
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 
-
 const columns: GridColDef[] = [
-  { field: 'dateCreated', headerName: 'Date Requested', width:240 },
+  { field: 'taskAuthoredDate', headerName: 'Date Requested', width:240 },
   { field: 'lastName', headerName: 'Last name', width:190  },
   {field: 'firstName',headerName: 'First Name', width:160},
   { field: 'serviceRequested', headerName: 'Service Requested', width:280},
@@ -24,30 +23,51 @@ const columns: GridColDef[] = [
 const NewReferrals = () => {
 
     const [dialogOpen, setDialogOpen] = React.useState(false)
-    const [selectedPatient, setSelectedPatient] = React.useState<ACLPatient  | undefined>({})
+    const [patients, setPatients] = React.useState<ACLPatient>([])
     const [services, setServices] = React.useState([])
+    const [tasks, setTasks] = React.useState<ACLTasks>([])
+    const [practitionerRole, setPractitionerRole] = React.useState<ACLPractitionerRole | undefined>([])
+    const [selectedPractitionerRole, setSelectedPractitionerRole] = React.useState<ACLPractitionerRole | undefined>([])
+    const [selectedPatient, setSelectedPatient] = React.useState<ACLPatient  | undefined>({})
+    const [selectedService, setSelectedService] = React.useState<ACLServiceRequest  | undefined>({})
+    const [selectedTask, setSelectedTask] = React.useState<ACLTasks  | undefined>({})
 
       React.useEffect(() => {
         (async () => {
-            const { patient ,serviceRequests} = await getPatientAndServiceRequests();
+            const { patient, serviceRequests, tasks, practitionerRole } = await getResources();
 
-            const transformedPatient:any = transformPatient(patient);
-            const transformedServices = transformServiceRequests(serviceRequests);
+            const transformedPatient : ACLPatient = transformPatient(patient);
+            const transformedServices : ACLServiceRequest = transformServiceRequests(serviceRequests);
+            const transformedTasks : ACLTasks = transformTasks(tasks);
+            const transformedPractitionerRole: ACLPractitionerRole = transformPractitionerRole(practitionerRole);
 
-            const data = transformedServices.map((items:any)=>{
-                return{
-                    ...items,
-                    firstName:transformedPatient.firstName,
-                    lastName:transformedPatient.lastName,
+            setPatients(transformedPatient);
+            setTasks(transformedTasks);
+            setPractitionerRole(transformedPractitionerRole);
+
+            const data = transformedServices.map((item : ACLServiceRequest) => {
+                const matchingPatient = transformedPatient.find((p: ACLPatient) => p.patientFhirId === item.serviceRequestFhirId);
+                const matchingTask = transformedTasks.find((x: ACLTasks) => x.taskId === item.serviceRequestId);
+                const {firstName,lastName}=matchingPatient;
+                const {taskAuthoredDate} = matchingTask;
+                if (matchingPatient && matchingTask) {
+                   return  { ...item, firstName,lastName, taskAuthoredDate };
                 }
-            })
+            });
 
             setServices(data)
         })();
     }, [])
 
     const handleRowClick = (row:{row: ACLPatient}) => {
-        setSelectedPatient(row.row)
+        const selectedRow = row.row;
+        const selected = patients.find((p: ACLPatient) => p.patientFhirId === selectedRow.serviceRequestFhirId);
+        const selectedTask = tasks.find((x: ACLTasks) => x.taskId === selectedRow.serviceRequestId);
+        const selectedPractitionerRole = practitionerRole;
+        setSelectedPatient(selected);
+        setSelectedService(selectedRow);
+        setSelectedTask(selectedTask);
+        setSelectedPractitionerRole(selectedPractitionerRole);
         setDialogOpen(true)
     }
 
@@ -58,7 +78,7 @@ const NewReferrals = () => {
 
     return (
         <>
-            <ReferralStatusDialog open={dialogOpen} onClose={handleClose} patient={selectedPatient} />
+            <ReferralStatusDialog open={dialogOpen} onClose={handleClose} patient={selectedPatient} service={selectedService} tasks={selectedTask} practitionerRole={selectedPractitionerRole} />
             <Typography variant="h6" mb={2}>New Referrals</Typography>
             <div style={{  width: '100%' }}>
             {services?.length === 0 ? <TableContainer component={({ children, ...props }) => <Card {...props} variant="outlined">{children}</Card>}>
