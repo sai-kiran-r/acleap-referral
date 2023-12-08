@@ -1,4 +1,4 @@
-import React from "react";
+import React,{useState,useEffect} from "react";
 import { ACLPatient, ACLServiceRequest, ACLTasks, ACLPractitionerRole } from "../../types";
 import { Box, Button, Card, Container, Dialog, TextField, DialogActions, DialogContent, Paper, DialogTitle, FormControl,
          Grid, InputLabel, MenuItem, OutlinedInput, Select, SelectChangeEvent, Table, TableBody, TableCell, TableContainer,
@@ -11,6 +11,7 @@ import FirstPageIcon from '@mui/icons-material/FirstPage';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import LastPageIcon from '@mui/icons-material/LastPage';
+import { getTaskById, updateTask } from "../../services/fhirServices";
 
 type ReferralStatusDialogProps = {
     open: boolean,
@@ -19,6 +20,10 @@ type ReferralStatusDialogProps = {
     service?: ACLServiceRequest,
     tasks?: ACLTasks,
     practitionerRole?: ACLPractitionerRole,
+}
+
+interface formDataType  {
+  businessStatus:any,owner:any,note:any
 }
 
 interface TablePaginationActionsProps {
@@ -32,6 +37,7 @@ interface TablePaginationActionsProps {
   }
 
 function TablePaginationActions(props: TablePaginationActionsProps) {
+
     const theme = useTheme();
     const { count, page, rowsPerPage, onPageChange } = props;
 
@@ -102,32 +108,70 @@ const rows = [
 ];
 
 const ReferralStatusDialog = (props: ReferralStatusDialogProps) => {
+  // console.log("taskId",props)
+    const [status, setStatus] = useState<ReferralStatus | undefined>(props.tasks?.taskBusinessStatus)
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [practitionerName, setPractitionerName] = useState<ACLPractitionerRole>([]);
+    const [formData, setFormData] = useState<formDataType>({businessStatus:'',owner:'',note:''});
+    const [taskOwner, setTaskOwner] = useState<string | undefined>('');
+    const [taskById, setTaskById] = useState<any>(null);
 
-    
-    const [status, setStatus] = React.useState<ReferralStatus | undefined>(props.tasks?.taskBusinessStatus)
-    const [page, setPage] = React.useState(0);
-    const [rowsPerPage, setRowsPerPage] = React.useState(5);
-    const [practitionerName, setPractitionerName] = React.useState<ACLPractitionerRole>([]);
-    const [selectedOwner, setSelectedOwner] = React.useState();
+    useEffect(() => {
+      const taskId:string| undefined = props.tasks?.taskId;
+      console.log("taskId", props.tasks?.taskId)
+      if (taskId) {
+        getTaskById(taskId).then((response :any)=>{
+          console.log("response",response)
+          setTaskById(response)
+        })
+      }
+    }, [])
 
-    React.useEffect(() => {
+    useEffect(() => {
       if (props.practitionerRole) {
-        // Extract practitioner names from the props and set them in the state.
         const practitionerNames = props.practitionerRole.map((practitioner: ACLPractitionerRole) => practitioner.practitionerName);
         setPractitionerName(practitionerNames);
       }
-    }, [props.practitionerRole]);
+      const getStatus = () => {
+        if(tasks?.taskBusinessStatus !== undefined){
+          if (tasks && Object.values(ReferralStatus).includes(tasks?.taskBusinessStatus)) {
+            return tasks.taskBusinessStatus;
+        }
+        return ReferralStatus.Received;
+        }
+    };
+      setStatus(getStatus);
+    }, [props.tasks]);
 
     const handleClose = (_: React.SyntheticEvent<unknown>, reason?: string) => {
         if (reason !== 'backdropClick') {
             setStatus(undefined)
+              let payload = {
+                ...formData,
+                createdDate:new Date().toISOString()
+              }
             props.onClose();
+            console.log('payload', payload);
         }
     }
 
     const handleStatusChange = (event: SelectChangeEvent<typeof status>) => {
-        setStatus(event.target.value as ReferralStatus);
+        const { value,name }= event.target;
+        setStatus(value as ReferralStatus);
+        setFormData({...formData,[name]:value})
+      };
+
+    const handleOwnerChange = (event: SelectChangeEvent<string>) => {
+        const { value, name } = event.target;
+        setTaskOwner(value);
+        setFormData({ ...formData, [name]: value });
     };
+
+    const handleStatusTextChange = (event:  React.ChangeEvent<HTMLInputElement>) => {
+      const { value,name }= event.target;
+      setFormData({...formData,[name]:value})
+  };
 
     const handleChangePage = (
         event: React.MouseEvent<HTMLButtonElement> | null,
@@ -143,19 +187,34 @@ const ReferralStatusDialog = (props: ReferralStatusDialogProps) => {
         setPage(0);
       }
 
-    // Function to update the selected owner
-    const handleOwnerChange = (event: SelectChangeEvent) => {
-      setSelectedOwner(props.tasks?.taskOwner as any);
-      };
-    
-    const openDialogWithCurrentOwner = (currentOwner: any) => {
-        setSelectedOwner(currentOwner);
-        // other logic to open the dialog
-    };
+      const handleSave = () => {
+        const {businessStatus,owner,note}= formData;
+        // console.log("formData",formData,taskById)
+        if (taskById  !== null) {
+         const updatedTask = {...taskById};
+         if (businessStatus !=="") {
+          updatedTask.businessStatus.text = businessStatus  ;
+         }
+        //  if (owner !=="") {
+        //   updatedTask.owner.display = owner  ;
+        //  }
+        //  if (note !=="") {
+          // const obj = {
+
+          // }
+          // updatedTask.note.push(obj)  ;
+        //  }
+
+        updateTask(updatedTask).then((res)=>{
+          console.log(res)
+          props.onClose();
+          // alert("Task Resource Updated Successfully");
+        })
+         console.log("updatedTask",updatedTask)
+        }
+}
 
     const {patient,service,tasks } = props;
-
-    console.log("selectedOwner", selectedOwner);
 
     return (
     <Dialog disableEscapeKeyDown open={props.open} onClose={handleClose} maxWidth={'lg'} fullWidth className="dialogue-size">
@@ -213,9 +272,11 @@ const ReferralStatusDialog = (props: ReferralStatusDialogProps) => {
                 <TableContainer component={({ children, ...props }) => <Card {...props} variant="outlined">{children}</Card>}>
                         <Table sx={{ minWidth: 700 }} aria-label="custom pagination table">
                             <TableHead>
+                              <TableRow>
                                 <TableCell>Note text</TableCell>
                                 <TableCell>Author</TableCell>
                                 <TableCell>Date</TableCell>
+                              </TableRow>
                             </TableHead>
                             <TableBody>
                                 { tasks?.taskNotes === undefined ?
@@ -270,10 +331,11 @@ const ReferralStatusDialog = (props: ReferralStatusDialogProps) => {
                                         <InputLabel htmlFor="input-status">Status</InputLabel>
                                         <Select
                                             labelId="input-status-label"
-                                            id="input-status"
-                                            value={status ?? tasks?.taskBusinessStatus}
+                                            name="businessStatus"
+                                            value={status === undefined ? "Received" as ReferralStatus : status}
                                             onChange={handleStatusChange}
-                                            input={<OutlinedInput label="Status" />}
+                                            input={<OutlinedInput label="Status" />
+                                          }
                                         >
                                             {Object.values(ReferralStatus).map((currStatus) => (
                                             <MenuItem key={currStatus} value={currStatus}>{currStatus}</MenuItem>
@@ -287,9 +349,9 @@ const ReferralStatusDialog = (props: ReferralStatusDialogProps) => {
                                         <InputLabel htmlFor="input-status">Owner</InputLabel>
                                         <Select
                                             labelId="input-owner-label"
-                                            id="input-owner"
-                                            value={selectedOwner}
-                                            onChange={handleStatusChange}
+                                            name="owner"
+                                            value={taskOwner}
+                                            onChange={handleOwnerChange}
                                             input={<OutlinedInput label="Owner" />}
                                         >
                                             {practitionerName.map((name: any, index: any) => (
@@ -311,8 +373,12 @@ const ReferralStatusDialog = (props: ReferralStatusDialogProps) => {
                                 fullWidth
                                 variant="outlined"
                                 rows={4}
+                                name="note"
+                                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                                  handleStatusTextChange(event);
+                                }}
                             />
-                         <Typography variant="caption" color={grey[800]} mb={1}>0/100</Typography>
+                        <Typography variant="caption" color={grey[800]} mb={1}>0/100</Typography>
                         </div>
                     </Grid>
                 </Grid>
@@ -320,7 +386,7 @@ const ReferralStatusDialog = (props: ReferralStatusDialogProps) => {
         </DialogContent>
         <DialogActions>
             <Button color="error" onClick={handleClose}>Cancel</Button>
-            <Button color="primary" onClick={handleClose}>Save</Button>
+            <Button color="primary" onClick={handleSave}>Save</Button>
         </DialogActions>
     </Dialog>
     )

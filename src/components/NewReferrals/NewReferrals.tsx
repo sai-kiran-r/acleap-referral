@@ -53,6 +53,8 @@ const NewReferrals = () => {
                 if (matchingPatient && matchingTask) {
                    return  { ...item, firstName,lastName, taskAuthoredDate };
                 }
+
+                return{}
             });
 
             setServices(data)
@@ -78,7 +80,8 @@ const NewReferrals = () => {
 
     return (
         <>
-            <ReferralStatusDialog open={dialogOpen} onClose={handleClose} patient={selectedPatient} service={selectedService} tasks={selectedTask} practitionerRole={selectedPractitionerRole} />
+            {dialogOpen ?<ReferralStatusDialog open={true} onClose={handleClose}
+            patient={selectedPatient} service={selectedService} tasks={selectedTask} practitionerRole={selectedPractitionerRole} />:null}
             <Typography variant="h6" mb={2}>New Referrals</Typography>
             <div style={{  width: '100%' }}>
             {services?.length === 0 ? <TableContainer component={({ children, ...props }) => <Card {...props} variant="outlined">{children}</Card>}>
