@@ -14,12 +14,13 @@ import LastPageIcon from '@mui/icons-material/LastPage';
 import { getTaskById, updateTask } from "../../services/fhirServices";
 
 type ReferralStatusDialogProps = {
-    open: boolean,
+    open: boolean ,
     onClose: () => void,
     patient?: ACLPatient,
     service?: ACLServiceRequest,
     tasks?: ACLTasks,
     practitionerRole?: ACLPractitionerRole,
+    getData:() => void ,
 }
 
 interface formDataType  {
@@ -108,14 +109,15 @@ const rows = [
 ];
 
 const ReferralStatusDialog = (props: ReferralStatusDialogProps) => {
-  // console.log("taskId",props)
+
     const [status, setStatus] = useState<ReferralStatus | undefined>(props.tasks?.taskBusinessStatus)
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [practitionerName, setPractitionerName] = useState<ACLPractitionerRole>([]);
     const [formData, setFormData] = useState<formDataType>({businessStatus:'',owner:'',note:''});
-    const [taskOwner, setTaskOwner] = useState<string | undefined>('');
+    const [taskOwner, setTaskOwner] = useState<string | undefined>(props.tasks?.taskOwner);
     const [taskById, setTaskById] = useState<any>(null);
+    const [textLength, setTextLength] = useState(0);
 
     useEffect(() => {
       const taskId:string| undefined = props.tasks?.taskId;
@@ -171,6 +173,8 @@ const ReferralStatusDialog = (props: ReferralStatusDialogProps) => {
     const handleStatusTextChange = (event:  React.ChangeEvent<HTMLInputElement>) => {
       const { value,name }= event.target;
       setFormData({...formData,[name]:value})
+      // Set the new text length state
+      setTextLength(value.length);
   };
 
     const handleChangePage = (
@@ -195,22 +199,49 @@ const ReferralStatusDialog = (props: ReferralStatusDialogProps) => {
          if (businessStatus !=="") {
           updatedTask.businessStatus.text = businessStatus  ;
          }
-        //  if (owner !=="") {
-        //   updatedTask.owner.display = owner  ;
-        //  }
-        //  if (note !=="") {
-          // const obj = {
+         if (owner !== "") {
+          // Find the owner ID using the provided owner name
+          const roleOwnerid = props.practitionerRole?.find((x: ACLPractitionerRole) => x.practitionerName === owner);
+          const { practitionerRoleId } = roleOwnerid;
 
-          // }
-          // updatedTask.note.push(obj)  ;
-        //  }
+          // Check if the owner field exists in the task, if not, create it
+          if (!updatedTask.owner) {
+              updatedTask.owner = {
+                  reference: '',
+                  display: ''
+              };
+          }
+
+          // Update the owner's reference and display properties
+          updatedTask.owner.reference = 'PractitionerRole/' + practitionerRoleId;
+          updatedTask.owner.display = owner;
+      }
+        // Check if the note field exists, if not, create it as an array
+        if (!updatedTask.note) {
+          updatedTask.note = [];
+      }
+
+      // Assuming note to be a string, add it to the note array
+      if (note && note.trim() !== "") {
+        const ownerid = props.practitionerRole?.find((x: ACLPractitionerRole) => x.practitionerName === owner);
+        const { practitionerid } = ownerid;
+        updatedTask.note.push({
+          authorReference: {
+            display: owner,
+            reference: "Practitioner/" + practitionerid
+            },
+          text: note,
+          time: new Date().toISOString()
+        });
+    }
 
         updateTask(updatedTask).then((res)=>{
-          console.log(res)
+          // console.log(res)
+          props.getData();
           props.onClose();
-          // alert("Task Resource Updated Successfully");
+
+          // alert("Task Resource is been updated");
         })
-         console.log("updatedTask",updatedTask)
         }
 }
 
@@ -377,8 +408,9 @@ const ReferralStatusDialog = (props: ReferralStatusDialogProps) => {
                                 onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                                   handleStatusTextChange(event);
                                 }}
+                                inputProps={{ maxLength: 100 }}
                             />
-                        <Typography variant="caption" color={grey[800]} mb={1}>0/100</Typography>
+                        <Typography variant="caption" color={grey[800]} mb={1}>{textLength}/100</Typography>
                         </div>
                     </Grid>
                 </Grid>

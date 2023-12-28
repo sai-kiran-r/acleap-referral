@@ -92,6 +92,7 @@ export type ACLTasks = {
 export type ACLPractitionerRole = {
     [x:string]: any,
     practitionerName?: string,
+    practitionerRoleId?: string,
     practitionerid?: string,
     practitionerOrganizationName?: string,
 }

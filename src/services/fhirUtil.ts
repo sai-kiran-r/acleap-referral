@@ -119,11 +119,13 @@ export const transformTasks = (tasks: ACLTasks ) => {
 export const transformPractitionerRole = (practitionerRole: ACLPractitionerRole ) => {
   return practitionerRole.map((practitionerRole: PractitionerRole) => {
     const practitionerName = practitionerRole.practitioner?.display;
+    const practitionerRoleId = practitionerRole?.id;
     const practitionerid = practitionerRole?.practitioner?.reference?.replace("Practitioner/","");
     const practitionerOrganizationName = practitionerRole.organization?.display;
 
     return{
       practitionerName,
+      practitionerRoleId,
       practitionerid,
       practitionerOrganizationName
     }
