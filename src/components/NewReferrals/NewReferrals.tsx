@@ -10,15 +10,33 @@ import ReferralStatusDialog from "../ReferralStatusDialog";
 import { transformPatient ,transformServiceRequests, transformTasks, transformPractitionerRole } from "../../services/fhirUtil";
 import {  getResources } from "../../services/fhirServices";
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import Chip from '@mui/material/Chip';
+
+const colorChips:any = {
+    "Received" : 'info',
+    "Assigned" : 'success',
+    "In progress" : 'primary',
+    "Entered in HMIS" : 'secondary',
+    "Rejected" : "error",
+    "Contact unsuccessful" : "warning",
+    // "Service not Needed" : "tertiary",
+    "On Hold" : "error",
+    "Entered in error" : "error"
+}
 
 const columns: GridColDef[] = [
-  { field: 'taskAuthoredDate', headerName: 'Date Requested', width:240 },
-  { field: 'lastName', headerName: 'Last name', width:190  },
-  {field: 'firstName',headerName: 'First Name', width:160},
-  { field: 'serviceRequested', headerName: 'Service Requested', width:280},
-  {field: 'referralSource',headerName: 'Referral Source', width:200},
+  { field: 'taskAuthoredDate', headerName: 'Date Requested', width:200 },
+  { field: 'lastName', headerName: 'Last name', width:140 },
+  { field: 'firstName',headerName: 'First Name', width:140 },
+  { field: 'serviceRequested', headerName: 'Service Requested', width:250 },
+  { field: 'referralSource',headerName: 'Referral Source', width:200 },
+  { field: 'taskBusinessStatus',headerName: 'Task Status',renderCell:renderRating, width:180 },
 ];
 
+function renderRating(params: any) {
+    return <Chip label={params.value} color={colorChips[params.value]}/>
+    ;
+  }
 
 const NewReferrals = () => {
 
@@ -52,9 +70,9 @@ const NewReferrals = () => {
                 const matchingPatient = transformedPatient.find((p: ACLPatient) => p.patientFhirId === item.serviceRequestFhirId);
                 const matchingTask = transformedTasks.find((x: ACLTasks) => x.taskId === item.serviceRequestId);
                 const {firstName,lastName}=matchingPatient;
-                const {taskAuthoredDate} = matchingTask;
+                const {taskAuthoredDate, taskBusinessStatus} = matchingTask;
                 if (matchingPatient && matchingTask) {
-                   return  { ...item, firstName,lastName, taskAuthoredDate };
+                   return  { ...item, firstName,lastName, taskAuthoredDate, taskBusinessStatus };
                 }
 
                 return{}
