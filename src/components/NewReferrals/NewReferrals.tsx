@@ -11,6 +11,8 @@ import { transformPatient ,transformServiceRequests, transformTasks, transformPr
 import {  getResources } from "../../services/fhirServices";
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import Chip from '@mui/material/Chip';
+import axios from 'axios';
+
 
 const colorChips:any = {
     "Received" : 'info',
@@ -54,7 +56,59 @@ const NewReferrals = () => {
         getData();
     }, [])
 
+    async function getAzureADToken(): Promise<string> {
+        // Retrieve configuration from environment variables
+        const tenantId: string | undefined = process.env.tenant_Id;
+        const clientId: string | undefined = process.env.clientId;
+        const clientSecret: string | undefined = process.env.clientSecret;
+        const scope: string | undefined = process.env.scope;
+
+        console.log("clientId", clientId);
+        console.log("clientSecret", clientSecret);
+        console.log("scope", scope);
+
+        if (!clientId || !clientSecret || !scope) {
+            throw new Error('Missing configuration values');
+        }
+
+        // Token URL constructed with the tenant ID
+        const tokenUrl: string | undefined = process.env.tokenUrl;
+        console.log("tokenUrl", tokenUrl);
+
+        if (!tokenUrl) {
+            throw new Error('Missing token URL');
+        }
+
+        // Set up the POST request body for the token request
+        const tokenRequestData = new URLSearchParams();
+        console.log("tokenRequestData", tokenRequestData);
+        tokenRequestData.append('client_id', clientId);
+        tokenRequestData.append('scope', scope);
+        tokenRequestData.append('client_secret', clientSecret);
+        tokenRequestData.append('grant_type', 'client_credentials');
+        console.log("tokenRequestData", tokenRequestData.toString());
+
+        try {
+            // Make the HTTP request to get the access token
+            const tokenResponse = await axios.post(tokenUrl, tokenRequestData.toString(), {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            });
+            // Return the access token from the response
+            console.log("tokenResponse.data.access_token", tokenResponse.data.access_token)
+            return tokenResponse.data.access_token;
+        } catch (error) {
+            console.error('Error obtaining token from Azure AD:', error);
+            throw new Error('Failed to obtain access token');
+        }
+    }
+    
     const  getData = async()=>{
+        const accessToken = await getAzureADToken();
+        console.log('AccessToken', accessToken);
+        console.log("This is inside getData()")
+
         const { patient, serviceRequests, tasks, practitionerRole } = await getResources();
 
             const transformedPatient : ACLPatient = transformPatient(patient);

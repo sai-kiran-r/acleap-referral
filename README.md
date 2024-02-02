@@ -85,7 +85,7 @@ ACLeap Referral is a standards-based web application platform for patients refer
       * `cd test`
       * `yarn start`
     * Ensure the app launches in a browser
-      * Open http://localhost:3000/ to view the test app
+      * Open http://localhost:8000/ to view the test app
     * If the test app works, navigate back to the acleap-referral directory
     * Attempt to install the application
       * `yarn`

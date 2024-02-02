@@ -131,6 +131,7 @@ const ReferralStatusDialog = (props: ReferralStatusDialogProps) => {
     }, [])
 
     useEffect(() => {
+      console.log("ACLPractitionerRole", props.practitionerRole);
       if (props.practitionerRole) {
         const practitionerNames = props.practitionerRole.map((practitioner: ACLPractitionerRole) => practitioner.practitionerName);
         setPractitionerName(practitionerNames);
@@ -218,12 +219,14 @@ const ReferralStatusDialog = (props: ReferralStatusDialogProps) => {
       }
         // Check if the note field exists, if not, create it as an array
         if (!updatedTask.note) {
+          console.log("I am at the creating the note condition");
           updatedTask.note = [];
       }
 
       // Assuming note to be a string, add it to the note array
-      if (note && note.trim() !== "") {
+      if (note && note.trim() !== "" && owner !== "") {
         const ownerid = props.practitionerRole?.find((x: ACLPractitionerRole) => x.practitionerName === owner);
+        console.log("ownerid", ownerid);
         const { practitionerid } = ownerid;
         updatedTask.note.push({
           authorReference: {

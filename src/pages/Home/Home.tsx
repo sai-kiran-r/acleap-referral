@@ -6,6 +6,7 @@ import ActiveReferrals from "../../components/ActiveReferrals";
 import ArchiveReferrals from "../../components/ArchiveReferrals";
 
 const Home = () => {
+
     return (
         <Main>
             <Container sx={{ height:'100vh',paddingTop: '24px', paddingBottom: '24px' }}>
@@ -36,4 +37,3 @@ const Home = () => {
 }
 
 export default Home
-
