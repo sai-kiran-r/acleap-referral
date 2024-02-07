@@ -157,7 +157,7 @@ const NewReferrals = () => {
             {dialogOpen ? <ReferralStatusDialog open={true} onClose={handleClose}
             patient={selectedPatient} service={selectedService} tasks={selectedTask} practitionerRole={selectedPractitionerRole}
             getData={getData} />:null}
-            <Typography variant="h6" mb={2}>New Referrals</Typography>
+            <Typography variant="h6" mb={2}>Referral Managment Dashborad</Typography>
             <div style={{  width: '100%' }}>
             {services?.length === 0 ? <TableContainer component={({ children, ...props }) => <Card {...props} variant="outlined">{children}</Card>}>
                 <Table sx={{ minWidth: 700 }} aria-label="simple table">

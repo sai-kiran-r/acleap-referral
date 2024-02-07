@@ -17,20 +17,20 @@ const Home = () => {
                         </Grid>
                     </Grid>
                 </Card>
-                <Card variant="outlined" sx={{ padding: '16px', marginBottom: '24px'  }}>
+                {/* <Card variant="outlined" sx={{ padding: '16px', marginBottom: '24px'  }}>
                     <Grid container spacing={2}>
                     <Grid item sm={12} md={12} overflow={'auto'}>
                         <ActiveReferrals />
                         </Grid>
                     </Grid>
-                </Card>
-                <Card variant="outlined" sx={{ padding: '16px', marginBottom: '24px'  }}>
+                </Card> */}
+                {/* <Card variant="outlined" sx={{ padding: '16px', marginBottom: '24px'  }}>
                     <Grid container spacing={2}>
                     <Grid item sm={12} md={12} overflow={'auto'}>
                         <ArchiveReferrals />
                         </Grid>
                     </Grid>
-                </Card>
+                </Card> */}
             </Container>
         </Main>
     )
