@@ -90,7 +90,6 @@ const pingServer = async () => {
   const serverURLRole: string = `${URL}/PractitionerRole`; // Replace with your server URL
 
   const tasks : Task[] = await getData(serverURLTask) as  Task[];
-  console.log("Tasks from Server: ",tasks);
   const patient : Patient = await getData(serverURLPatient) as Patient;
   const serviceRequests : ServiceRequest[] = await getData(serverURLServ) as ServiceRequest[]
   const practitionerRole : PractitionerRole[] = await getData(serverURLRole)

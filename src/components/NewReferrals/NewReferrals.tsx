@@ -81,13 +81,14 @@ const NewReferrals = () => {
         const tasks = tasksData.slice(1);
         const practitionerRole = practitionerRoleData.slice(1);
 
-        console.log("Patient data", patient);
-        console.log("ServiceRequestData", serviceRequests);
-        console.log("tasksData", tasks);
-        console.log("practitionerRoleData", practitionerRole);
+        // console.log("Patient data", patient);
+        // console.log("ServiceRequestData", serviceRequests);
+        // console.log("tasksData", tasks);
+        // console.log("practitionerRoleData", practitionerRole);
 
         // const { patient, serviceRequests, tasks, practitionerRole } = resources;
-        // const { patient, serviceRequests, tasks, practitionerRole } = await getResources();
+        // const { practitionerRole } = await getResources();
+        // console.log("<-------------------practitionerRole--------------->", JSON.stringify(practitionerRole));
         // console.log("tasks, practitionerRole ",tasks, practitionerRole )
 
         const transformedPatient : ACLPatient = transformPatient(patient);
@@ -95,9 +96,9 @@ const NewReferrals = () => {
         const transformedTasks : ACLTasks = transformTasks(tasks);
         const transformedPractitionerRole: ACLPractitionerRole = transformPractitionerRole(practitionerRole);
 
-        console.log("transformedPatient", transformedPatient);
-        console.log("transformedServices", transformedServices);
-        console.log("transformedTasks", transformedTasks);
+        // console.log("transformedPatient", transformedPatient);
+        // console.log("transformedServices", transformedServices);
+        // console.log("transformedTasks", transformedTasks);
 
             setPatients(transformedPatient);
             setTasks(transformedTasks);
@@ -124,8 +125,8 @@ const NewReferrals = () => {
                 const matchingPatient = transformedPatient.find((p: ACLPatient) => p.patientFhirId === item.serviceRequestPatientId);
                 const matchingTask = transformedTasks.find((x: ACLTasks) => x.taskServiceRequestId === item.serviceRequestFHIRId);
 
-                console.log("matchingPatient", matchingPatient);
-                console.log("matchingTask", matchingTask);
+                // console.log("matchingPatient", matchingPatient);
+                // console.log("matchingTask", matchingTask);
               
                 // Only proceed if both a matching patient and task are found and their data is complete
                 if (matchingPatient && matchingTask &&
@@ -133,6 +134,7 @@ const NewReferrals = () => {
                     typeof matchingTask.taskAuthoredDate === 'string' && typeof matchingTask.taskBusinessStatus === 'string') {
                   return {
                     ...item,
+                    referralSource: matchingTask.taskRequester,
                     firstName: matchingPatient.firstName,
                     lastName: matchingPatient.lastName,
                     taskAuthoredDate: matchingTask.taskAuthoredDate,
@@ -147,7 +149,7 @@ const NewReferrals = () => {
               
 
             setServices(data)
-            console.log("data", data);
+            // console.log("data", data);
     }
     
 
@@ -174,7 +176,7 @@ const NewReferrals = () => {
             {dialogOpen ? <ReferralStatusDialog open={true} onClose={handleClose}
             patient={selectedPatient} service={selectedService} tasks={selectedTask} practitionerRole={selectedPractitionerRole}
             getData={getData} />:null}
-            <Typography variant="h6" mb={2}>New Referrals</Typography>
+            <Typography variant="h6" mb={2}>Referral Managment Dashborad</Typography>
             <div style={{  width: '100%' }}>
             {services?.length === 0 ? <TableContainer component={({ children, ...props }) => <Card {...props} variant="outlined">{children}</Card>}>
                 <Table sx={{ minWidth: 700 }} aria-label="simple table">

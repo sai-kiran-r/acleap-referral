@@ -118,14 +118,14 @@ export const transformPatient = (patient: any): ACLPatient => {
 
 
 export const transformServiceRequests = (serviceRequests: ACLServiceRequest) => {
-  console.log("serviceRequests",serviceRequests)
+  // console.log("serviceRequests",serviceRequests)
     return serviceRequests.map((serviceRequest: ServiceRequest ,index:number) => {
 
       const dateCreated = moment(serviceRequest.meta?.lastUpdated).format('MM/DD/YYYY');
       const intialReferralNote = serviceRequest.note?.[0]?.text;
       const referralID = serviceRequest.identifier?.[0]?.value;
       const serviceRequested = serviceRequest.code?.text;
-      const referralSource = serviceRequest.requester?.display;
+      // const referralSource = serviceRequest.requester?.display;
       const serviceRequestPatientId = serviceRequest.subject.reference?.replace("Patient/","");
       const serviceRequestFHIRId = serviceRequest?.id;
 
@@ -134,7 +134,7 @@ export const transformServiceRequests = (serviceRequests: ACLServiceRequest) => 
         intialReferralNote,
         referralID,
         serviceRequested,
-        referralSource,
+        // referralSource,
         id:index,
         serviceRequestPatientId,
         serviceRequestFHIRId
@@ -144,7 +144,7 @@ export const transformServiceRequests = (serviceRequests: ACLServiceRequest) => 
 
 export const transformTasks = (tasks: ACLTasks ) => {
 
-  console.log("tasks",tasks)
+  // console.log("tasks",tasks)
   return tasks.map((task: Task ,index:number) => {
 
     const taskAuthoredDate = moment(task.authoredOn).format('MM/DD/YYYY');
@@ -184,7 +184,7 @@ export const transformTasks = (tasks: ACLTasks ) => {
 };
 
 export const transformPractitionerRole = (practitionerRole: ACLPractitionerRole ) => {
-  console.log("practitionerRole",practitionerRole)
+  // console.log("practitionerRole",practitionerRole)
 
   return practitionerRole.map((practitionerRole: PractitionerRole) => {
     const practitionerName = practitionerRole.practitioner?.display;

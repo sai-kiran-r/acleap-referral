@@ -113,7 +113,7 @@ const rows = [
 
 const ReferralStatusDialog = (props: ReferralStatusDialogProps) => {
 
-  console.log("props",props)
+  // console.log("props",props)
 
     const [status, setStatus] = useState<ReferralStatus | undefined>(props.tasks?.taskBusinessStatus)
     const [page, setPage] = useState(0);
@@ -123,13 +123,21 @@ const ReferralStatusDialog = (props: ReferralStatusDialogProps) => {
     const [taskOwner, setTaskOwner] = useState<string | undefined>(props.tasks?.taskOwner);
     const [taskById, setTaskById] = useState<any>(null);
     const [textLength, setTextLength] = useState(0);
+    const [noNotes, setnoNotes] = useState<boolean>(true);
 
     useEffect(() => {
+      if(props.tasks?.taskNotes === undefined){
+        setnoNotes(true);
+        console.log("This Task does not have any  notes", noNotes);
+      }
+      else{
+        setnoNotes(false);
+      }
       const taskServiceRequestId:string| undefined = props.tasks?.taskServiceRequestId;
-      console.log("taskServiceRequestId", props.tasks?.taskServiceRequestId)
+      // console.log("taskServiceRequestId", props.tasks?.taskServiceRequestId)
       if (taskServiceRequestId) {
         getTaskById(taskServiceRequestId).then((response :any)=>{
-          console.log("response",response)
+          // console.log("response",response)
           setTaskById(response)
         })
       }
@@ -199,41 +207,61 @@ const ReferralStatusDialog = (props: ReferralStatusDialogProps) => {
 
       const handleSave = () => {
         const {businessStatus,owner,note}= formData;
-        // console.log("formData",formData,taskById)
+        console.log("formData",formData)
         // alert(taskById)
         const taskById:any =  props.tasks?.taskFHIRId;
         console.log("taskById",taskById)
         const payload =[];
         if (taskById  !== null) {
-
           if (businessStatus!=="") {
-            
           payload.push( { "op": "replace", "path": "/businessStatus/text", "value":businessStatus})
           }
-          if (owner!=="") {
-            
-            payload.push( { "op": "replace", "path": "/businessStatus/text", "value":businessStatus})
-            }
-            if (note!=="") {
-            
-              payload.push( { "op": "replace", "path": "/businessStatus/text", "value":businessStatus})
-              }
+          if (owner !== "") {
+            // Find the owner ID using the provided owner name
+            const roleOwnerid = props.practitionerRole?.find((x: ACLPractitionerRole) => x.practitionerName === owner);
+            const { practitionerRoleId } = roleOwnerid;
 
-        
-
-
-  
+            // Update the owner's reference and display properties
+            payload.push( { "op": "replace", "path": "/owner/reference", "value":'PractitionerRole/' + practitionerRoleId})
+            payload.push( { "op": "replace", "path": "/owner/display", "value":owner})
+        }
+        // Assuming note to be a string, add it to the note array
+      if (note && note.trim() !== "" && owner !== "" && noNotes) {
+        console.log("adding first note");
+        setnoNotes(false);
+        const ownerid = props.practitionerRole?.find((x: ACLPractitionerRole) => x.practitionerName === owner);
+        const { practitionerid } = ownerid;
+        payload.push( { "op": "add", "path": "/note", "value":{
+          "authorReference": {
+            "display": `${owner}`,
+            "reference": "Practitioner/" + practitionerid
+          },
+          "text": `${note}`,
+          "time": new Date().toISOString()
+        }});
+    }
+    if (note && note.trim() !== "" && owner !== "" && !noNotes) {
+      console.log("appending second note");
+      setnoNotes(false);
+      const ownerid = props.practitionerRole?.find((x: ACLPractitionerRole) => x.practitionerName === owner);
+      const { practitionerid } = ownerid;
+      payload.push( { "op": "add", "path": "/note/-", "value":{
+        "authorReference": {
+          "display": `${owner}`,
+          "reference": "Practitioner/" + practitionerid
+        },
+        "text": `${note}`,
+        "time": new Date().toISOString()
+      }});
+  }
     console.log("payload",payload)
-
     updateData(taskById,payload).then((res)=>{
-          // console.log(res)
+          console.log(res)
           props.getData();
           props.onClose();
-
-          // alert("Task Resource is been updated");
+          alert("Task Resource is been updated successfully");
         })
       }
-        
 }
 
     const {patient,service,tasks } = props;
