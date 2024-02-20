@@ -1,0 +1,128 @@
+Arguments: 
+  C:\Program Files\nodejs\node.exe C:\Users\SravanPattabhi\AppData\Roaming\npm\node_modules\yarn\bin\yarn.js
+
+PATH: 
+  C:\Program Files\Common Files\Oracle\Java\javapath;C:\Python312\Scripts\;C:\Python312\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\ProgramData\chocolatey\bin;C:\Users\SravanPattabhi\AppData\Roaming\nvm;C:\Program Files\nodejs;C:\Program Files\Git\cmd;C:\Program Files\RedHat\java-21-openjdk-21.0.1.0.12-3\bin;;C:\Program Files\Docker\Docker\resources\bin;C:\Users\SravanPattabhi\AppData\Local\Microsoft\WindowsApps;C:\Users\SravanPattabhi\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\SravanPattabhi\AppData\Local\GitHubDesktop\bin;C:\Users\SravanPattabhi\AppData\Roaming\npm;C:\Users\SravanPattabhi\AppData\Roaming\nvm;C:\Program Files\nodejs;C:\Program Files\JetBrains\IntelliJ IDEA 2023.3.2\bin;
+
+Yarn version: 
+  1.22.19
+
+Node version: 
+  16.20.2
+
+Platform: 
+  win32 x64
+
+Trace: 
+  Error: https://registry.yarnpkg.com/@mui/icons-material/-/icons-material-5.15.10.tgz: ESOCKETTIMEDOUT
+      at ClientRequest.<anonymous> (C:\Users\SravanPattabhi\AppData\Roaming\npm\node_modules\yarn\lib\cli.js:141517:19)
+      at Object.onceWrapper (node:events:627:28)
+      at ClientRequest.emit (node:events:513:28)
+      at TLSSocket.emitRequestTimeout (node:_http_client:839:9)
+      at Object.onceWrapper (node:events:627:28)
+      at TLSSocket.emit (node:events:525:35)
+      at TLSSocket.Socket._onTimeout (node:net:550:8)
+      at listOnTimeout (node:internal/timers:559:17)
+      at processTimers (node:internal/timers:502:7)
+
+npm manifest: 
+  {
+      "name": "acleap-referral",
+      "version": "1.0.0",
+      "private": true,
+      "homepage": "https://chronic-care.github.io/acleap-referral",
+      "dependencies": {
+          "@azure/msal-browser": "^3.1.0",
+          "@azure/msal-react": "^2.0.3",
+          "@emotion/react": "^11.11.1",
+          "@emotion/styled": "^11.11.0",
+          "@floating-ui/dom": "^1.5.3",
+          "@fortawesome/fontawesome-svg-core": "^1.2.29",
+          "@fortawesome/free-regular-svg-icons": "^5.13.1",
+          "@fortawesome/free-solid-svg-icons": "^5.13.1",
+          "@fortawesome/react-fontawesome": "^0.1.11",
+          "@mui/icons-material": "^5.10.14",
+          "@mui/lab": "^5.0.0-alpha.74",
+          "@mui/material": "^5.14.9",
+          "@mui/x-data-grid": "^6.14.0",
+          "@testing-library/jest-dom": "^4.2.4",
+          "@testing-library/react": "^9.3.2",
+          "@testing-library/user-event": "^7.1.2",
+          "@types/fhir": "0.0.35",
+          "@types/jest": "^25.2.1",
+          "@types/node": "^13.11.0",
+          "@types/react": "^16.9.32",
+          "@types/react-dom": "^16.9.6",
+          "@types/react-draft-wysiwyg": "^1.13.4",
+          "@types/react-youtube": "^7.6.2",
+          "@typescript-eslint/eslint-plugin": "^6.7.0",
+          "@typescript-eslint/parser": "^6.7.0",
+          "array.prototype.fill": "^1.0.2",
+          "axios": "^1.6.7",
+          "bootstrap": "^4.5.0",
+          "cql-exec-fhir": "^2.0.0",
+          "cql-execution": "^2.3.0",
+          "date-fns": "^2.19.0",
+          "draft-js": "^0.11.7",
+          "fhirclient": "^2.5.2",
+          "html-react-parser": "^0.14.1",
+          "immer": "9.0.6",
+          "immutable": "^4.3.2",
+          "localforage": "^1.10.0",
+          "minimist": "1.2.6",
+          "moment": "^2.29.4",
+          "msal": "^1.4.18",
+          "react": "^16.13.1",
+          "react-aad-msal": "^2.3.5",
+          "react-bootstrap": "^1.0.1",
+          "react-breakpoint-fix": "^1.0.7",
+          "react-circular-progressbar": "^2.0.3",
+          "react-dom": "^16.13.1",
+          "react-draft-wysiwyg": "^1.15.0",
+          "react-microsoft-login": "^2.0.1",
+          "react-router-dom": "^5.2.0",
+          "react-scripts": "3.4.1",
+          "react-tabs": "^3.2.3",
+          "react-youtube": "^7.13.0",
+          "shell-quote": "1.7.3",
+          "web-vitals": "^2.1.4"
+      },
+      "devDependencies": {
+          "@rescripts/cli": "^0.0.13",
+          "@rescripts/utilities": "^0.0.6",
+          "@types/react-router-dom": "^5.1.6",
+          "@types/react-tabs": "^2.3.4",
+          "cors": "^2.8.5",
+          "express": "^4.17.1",
+          "gh-pages": "^3.1.0",
+          "typescript": "5.1.6"
+      },
+      "scripts": {
+          "start": "rescripts start",
+          "build": "rescripts build",
+          "test": "rescripts test",
+          "eject": "rescripts eject",
+          "predeploy": "rescripts build",
+          "deploy": "gh-pages -d build"
+      },
+      "browserslist": {
+          "production": [
+              ">0.2%",
+              "not dead",
+              "not op_mini all",
+              "ie 11"
+          ],
+          "development": [
+              "last 1 chrome version",
+              "last 1 firefox version",
+              "last 1 safari version",
+              "ie 11"
+          ]
+      }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile

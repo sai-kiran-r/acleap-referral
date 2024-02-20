@@ -30,7 +30,7 @@
         "@typescript-eslint/eslint-plugin": "^6.7.0",
         "@typescript-eslint/parser": "^6.7.0",
         "array.prototype.fill": "^1.0.2",
-        "axios": "^0.27.2",
+        "axios": "^1.6.7",
         "bootstrap": "^4.5.0",
         "cql-exec-fhir": "^2.0.0",
         "cql-execution": "^2.3.0",

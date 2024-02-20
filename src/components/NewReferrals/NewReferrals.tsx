@@ -11,8 +11,15 @@ import { transformPatient ,transformServiceRequests, transformTasks, transformPr
 import {  getResources } from "../../services/fhirServices";
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import Chip from '@mui/material/Chip';
-import axios from 'axios';
+import pingServer from  "../../services/azureFhirResource"
+import { Patient, ServiceRequest, Task } from "fhir/r4";
 
+interface EnrichedServiceRequest extends ACLServiceRequest {
+    firstName: string;
+    lastName: string;
+    taskAuthoredDate: string;
+    taskBusinessStatus: string;
+  }
 
 const colorChips:any = {
     "Received" : 'info',
@@ -55,90 +62,99 @@ const NewReferrals = () => {
       React.useEffect(() => {
         getData();
     }, [])
-
-    async function getAzureADToken(): Promise<string> {
-        // Retrieve configuration from environment variables
-        const tenantId: string | undefined = process.env.tenant_Id;
-        const clientId: string | undefined = process.env.clientId;
-        const clientSecret: string | undefined = process.env.clientSecret;
-        const scope: string | undefined = process.env.scope;
-
-        console.log("clientId", clientId);
-        console.log("clientSecret", clientSecret);
-        console.log("scope", scope);
-
-        if (!clientId || !clientSecret || !scope) {
-            throw new Error('Missing configuration values');
-        }
-
-        // Token URL constructed with the tenant ID
-        const tokenUrl: string | undefined = process.env.tokenUrl;
-        console.log("tokenUrl", tokenUrl);
-
-        if (!tokenUrl) {
-            throw new Error('Missing token URL');
-        }
-
-        // Set up the POST request body for the token request
-        const tokenRequestData = new URLSearchParams();
-        console.log("tokenRequestData", tokenRequestData);
-        tokenRequestData.append('client_id', clientId);
-        tokenRequestData.append('scope', scope);
-        tokenRequestData.append('client_secret', clientSecret);
-        tokenRequestData.append('grant_type', 'client_credentials');
-        console.log("tokenRequestData", tokenRequestData.toString());
-
-        try {
-            // Make the HTTP request to get the access token
-            const tokenResponse = await axios.post(tokenUrl, tokenRequestData.toString(), {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                }
-            });
-            // Return the access token from the response
-            console.log("tokenResponse.data.access_token", tokenResponse.data.access_token)
-            return tokenResponse.data.access_token;
-        } catch (error) {
-            console.error('Error obtaining token from Azure AD:', error);
-            throw new Error('Failed to obtain access token');
-        }
-    }
     
     const  getData = async()=>{
-        const accessToken = await getAzureADToken();
-        console.log('AccessToken', accessToken);
-        console.log("This is inside getData()")
 
-        const { patient, serviceRequests, tasks, practitionerRole } = await getResources();
+        const resources : any = await pingServer();
 
-            const transformedPatient : ACLPatient = transformPatient(patient);
-            const transformedServices : ACLServiceRequest = transformServiceRequests(serviceRequests);
-            const transformedTasks : ACLTasks = transformTasks(tasks);
-            const transformedPractitionerRole: ACLPractitionerRole = transformPractitionerRole(practitionerRole);
+        // console.log("Pinged the server:", resources );
+
+        const PatientData  = resources.patient.map((patient: any) => patient.resource);
+        const ServiceRequestData = resources.serviceRequests.map((serviceRequests: any) => serviceRequests.resource);
+        const tasksData = resources.tasks.map((tasks: { resource: any; }) => tasks.resource);
+        const practitionerRoleData = resources.practitionerRole.map((practitionerRole: { resource: any; }) => practitionerRole.resource);
+
+        
+
+        const patient = PatientData.slice(1);
+        const serviceRequests = ServiceRequestData.slice(1);
+        const tasks = tasksData.slice(1);
+        const practitionerRole = practitionerRoleData.slice(1);
+
+        console.log("Patient data", patient);
+        console.log("ServiceRequestData", serviceRequests);
+        console.log("tasksData", tasks);
+        console.log("practitionerRoleData", practitionerRole);
+
+        // const { patient, serviceRequests, tasks, practitionerRole } = resources;
+        // const { patient, serviceRequests, tasks, practitionerRole } = await getResources();
+        // console.log("tasks, practitionerRole ",tasks, practitionerRole )
+
+        const transformedPatient : ACLPatient = transformPatient(patient);
+        const transformedServices : ACLServiceRequest = transformServiceRequests(serviceRequests);
+        const transformedTasks : ACLTasks = transformTasks(tasks);
+        const transformedPractitionerRole: ACLPractitionerRole = transformPractitionerRole(practitionerRole);
+
+        console.log("transformedPatient", transformedPatient);
+        console.log("transformedServices", transformedServices);
+        console.log("transformedTasks", transformedTasks);
 
             setPatients(transformedPatient);
             setTasks(transformedTasks);
             setPractitionerRole(transformedPractitionerRole);
+            
+            // const data = transformedServices.map((item : ACLServiceRequest) => {
+            //     const matchingPatient = transformedPatient.find((p: ACLPatient) => p.patientFhirId === item.serviceRequestPatientId);
+            //     const matchingTask = transformedTasks.find((x: ACLTasks) => x.taskServiceRequestId === item.serviceRequestFHIRId);
 
-            const data = transformedServices.map((item : ACLServiceRequest) => {
-                const matchingPatient = transformedPatient.find((p: ACLPatient) => p.patientFhirId === item.serviceRequestFhirId);
-                const matchingTask = transformedTasks.find((x: ACLTasks) => x.taskId === item.serviceRequestId);
-                const {firstName,lastName}=matchingPatient;
-                const {taskAuthoredDate, taskBusinessStatus} = matchingTask;
-                if (matchingPatient && matchingTask) {
-                   return  { ...item, firstName,lastName, taskAuthoredDate, taskBusinessStatus };
+            //     console.log("matchingPatient", matchingPatient);
+                
+            //     console.log("matchingTask", matchingTask);
+            //     const {firstName,lastName}=matchingPatient;
+            //     const {taskAuthoredDate, taskBusinessStatus} = matchingTask;
+            //     if (matchingPatient && matchingTask) {
+            //        return  { ...item, firstName,lastName, taskAuthoredDate, taskBusinessStatus };
+            //     }
+
+            //     return{}
+            // });
+
+            const data = transformedServices.map((item: ACLServiceRequest): EnrichedServiceRequest | null => {
+                // Attempt to find a matching patient and task
+                const matchingPatient = transformedPatient.find((p: ACLPatient) => p.patientFhirId === item.serviceRequestPatientId);
+                const matchingTask = transformedTasks.find((x: ACLTasks) => x.taskServiceRequestId === item.serviceRequestFHIRId);
+
+                console.log("matchingPatient", matchingPatient);
+                console.log("matchingTask", matchingTask);
+              
+                // Only proceed if both a matching patient and task are found and their data is complete
+                if (matchingPatient && matchingTask &&
+                    typeof matchingPatient.firstName === 'string' && typeof matchingPatient.lastName === 'string' &&
+                    typeof matchingTask.taskAuthoredDate === 'string' && typeof matchingTask.taskBusinessStatus === 'string') {
+                  return {
+                    ...item,
+                    firstName: matchingPatient.firstName,
+                    lastName: matchingPatient.lastName,
+                    taskAuthoredDate: matchingTask.taskAuthoredDate,
+                    taskBusinessStatus: matchingTask.taskBusinessStatus
+                  };
                 }
-
-                return{}
-            });
+              
+                // Return null for unmatched or incomplete data to filter out later
+                return null;
+              }).filter((item : EnrichedServiceRequest | null): item is EnrichedServiceRequest => item !== null); // Remove any service requests that didn't match or were incomplete
+              
+              
 
             setServices(data)
+            console.log("data", data);
     }
+    
 
     const handleRowClick = (row:{row: ACLPatient}) => {
         const selectedRow = row.row;
-        const selected = patients.find((p: ACLPatient) => p.patientFhirId === selectedRow.serviceRequestFhirId);
-        const selectedTask = tasks.find((x: ACLTasks) => x.taskId === selectedRow.serviceRequestId);
+        const selected = patients.find((p: ACLPatient) => p.patientFhirId === selectedRow.serviceRequestPatientId);
+        const selectedTask = tasks.find((x: ACLTasks) => x.taskServiceRequestId === selectedRow.serviceRequestFHIRId);
         const selectedPractitionerRole = practitionerRole;
         setSelectedPatient(selected);
         setSelectedService(selectedRow);
@@ -151,6 +167,7 @@ const NewReferrals = () => {
         setDialogOpen(false)
         setSelectedPatient(undefined)
     }
+    
 
     return (
         <>

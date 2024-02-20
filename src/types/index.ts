@@ -49,7 +49,8 @@ export type ACLServiceRequest = {
     // firstName?: string,
     // lastName?: string,
     serviceRequestId?: string,
-    serviceRequestFhirId?: string,
+    serviceRequestPatientId?: string,
+    serviceRequestFHIRId?: string
 }
 
 export type ACLActiveReferrals = {
@@ -82,7 +83,9 @@ export type ACLTasks = {
     taskDescription?: string,
     taskRequester?: string,
     taskAuthoredDate?: string,
-    taskId?: string,
+    taskFHIRId?: string,
+    taskServiceRequestId?: string,
+    taskPatientId?: string,
     taskStatus?: string,
     taskBusinessStatus?: ReferralStatus,
     taskOwner?: string,

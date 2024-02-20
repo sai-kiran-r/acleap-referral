@@ -41,15 +41,17 @@ export const getResources = async (): Promise<{ patient: Patient, serviceRequest
         console.error("Error fetching PractitionerRole resource ", error);
     }
 
+    console.log("From MELD", JSON.stringify(tasks) + "\n\n");
+
     return { patient, serviceRequests, tasks, practitioner, practitionerRole};
 };
 
-export const getTaskById = async (taskID: string): Promise<Task | null> => {
+export const getTaskById = async (taskServiceRequestId: string): Promise<Task | null> => {
     const client = await FHIR.oauth2.ready();
 
     try {
-        // Fetch task data using the provided taskID
-        const task = await client.request(`Task/${taskID}-task`) as Task;
+        // Fetch task data using the provided taskServiceRequestId
+        const task = await client.request(`Task/${taskServiceRequestId}-task`) as Task;
         console.log("task response",task)
         return task;
     } catch (error) {
