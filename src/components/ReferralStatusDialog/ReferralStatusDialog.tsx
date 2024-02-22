@@ -2,7 +2,7 @@ import React,{useState,useEffect} from "react";
 import { ACLPatient, ACLServiceRequest, ACLTasks, ACLPractitionerRole } from "../../types";
 import { Box, Button, Card, Container, Dialog, TextField, DialogActions, DialogContent, Paper, DialogTitle, FormControl,
          Grid, InputLabel, MenuItem, OutlinedInput, Select, SelectChangeEvent, Table, TableBody, TableCell, TableContainer,
-         TableHead, TableRow, Typography, TablePagination, TableFooter } from "@mui/material";
+         TableHead, TableRow, Typography, TablePagination, TableFooter, TableSortLabel } from "@mui/material";
 import { ReferralStatus } from "../../utils/constants";
 import { useTheme } from '@mui/material/styles';
 import { grey } from "@mui/material/colors";
@@ -11,7 +11,7 @@ import FirstPageIcon from '@mui/icons-material/FirstPage';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import LastPageIcon from '@mui/icons-material/LastPage';
-import { getTaskById, updateTask } from "../../services/fhirServices";
+// import { getTaskById } from "../../services/fhirServices";
 import {updateData } from "../../services/azureFhirResource";
 
 type ReferralStatusDialogProps = {
@@ -39,9 +39,6 @@ interface TablePaginationActionsProps {
   }
 
 function TablePaginationActions(props: TablePaginationActionsProps) {
-  
-  
-
     const theme = useTheme();
     const { count, page, rowsPerPage, onPageChange } = props;
 
@@ -97,23 +94,7 @@ function TablePaginationActions(props: TablePaginationActionsProps) {
     );
   }
 
-type Order = 'asc' | 'desc';
-
-function createData(
-    noteText: string,
-    author: string,
-    date: string,
-) {
-    return{ noteText, author, date}
-}
-
-const rows = [
-    createData('Assigned Armando for Outreach', 'Armando Garcia','01/01/23')
-];
-
 const ReferralStatusDialog = (props: ReferralStatusDialogProps) => {
-
-  // console.log("props",props)
 
     const [status, setStatus] = useState<ReferralStatus | undefined>(props.tasks?.taskBusinessStatus)
     const [page, setPage] = useState(0);
@@ -121,44 +102,54 @@ const ReferralStatusDialog = (props: ReferralStatusDialogProps) => {
     const [practitionerName, setPractitionerName] = useState<ACLPractitionerRole>([]);
     const [formData, setFormData] = useState<formDataType>({businessStatus:'',owner:'',note:''});
     const [taskOwner, setTaskOwner] = useState<string | undefined>(props.tasks?.taskOwner);
-    const [taskById, setTaskById] = useState<any>(null);
+    // const [taskById, setTaskById] = useState<any>(null);
     const [textLength, setTextLength] = useState(0);
     const [noNotes, setnoNotes] = useState<boolean>(true);
+    const [sortColumn, setSortColumn] = useState<string | null>(null);
+    const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
 
     useEffect(() => {
-      if(props.tasks?.taskNotes === undefined){
-        setnoNotes(true);
-        console.log("This Task does not have any  notes", noNotes);
-      }
-      else{
-        setnoNotes(false);
-      }
-      const taskServiceRequestId:string| undefined = props.tasks?.taskServiceRequestId;
-      // console.log("taskServiceRequestId", props.tasks?.taskServiceRequestId)
-      if (taskServiceRequestId) {
-        getTaskById(taskServiceRequestId).then((response :any)=>{
-          // console.log("response",response)
-          setTaskById(response)
-        })
-      }
-    }, [])
+      if (props.tasks) {
+          // Check if taskNotes exist
+          const hasTaskNotes = props.tasks.taskNotes !== undefined;
+          setnoNotes(!hasTaskNotes);
 
-    useEffect(() => {
-      console.log("ACLPractitionerRole", props.practitionerRole);
-      if (props.practitionerRole) {
-        const practitionerNames = props.practitionerRole.map((practitioner: ACLPractitionerRole) => practitioner.practitionerName);
-        setPractitionerName(practitionerNames);
+          // Update practitioner names
+          if (props.practitionerRole) {
+              const practitionerNames = props.practitionerRole.map((practitioner: ACLPractitionerRole) => practitioner.practitionerName);
+              setPractitionerName(practitionerNames);
+          }
+
+          // Update status
+          const getStatus = () => {
+              if (props.tasks?.taskBusinessStatus !== undefined) {
+                  if (Object.values(ReferralStatus).includes(props.tasks.taskBusinessStatus)) {
+                      return props.tasks.taskBusinessStatus;
+                  }
+                  return ReferralStatus.Received;
+              }
+          };
+          setStatus(getStatus());
       }
-      const getStatus = () => {
-        if(tasks?.taskBusinessStatus !== undefined){
-          if (tasks && Object.values(ReferralStatus).includes(tasks?.taskBusinessStatus)) {
-            return tasks.taskBusinessStatus;
-        }
-        return ReferralStatus.Received;
-        }
+  }, [props.tasks, props.practitionerRole]);
+
+    const handleRequestSort = (columnKey: string) => {
+      const newSortDirection =
+          sortColumn === columnKey && sortDirection === "desc" ? "asc" : "desc";
+      setSortColumn(columnKey);
+      setSortDirection(newSortDirection);
     };
-      setStatus(getStatus);
-    }, [props.tasks]);
+
+    const sortedNotes = props.tasks?.taskNotes? [...props.tasks?.taskNotes].sort((a, b) => {
+          const valueA = sortColumn ? a[sortColumn] : "";
+          const valueB = sortColumn ? b[sortColumn] : "";
+              if (sortDirection === "asc") {
+                  return valueA.localeCompare(valueB);
+              } else {
+                  return valueB.localeCompare(valueA);
+              }
+          })
+        : [];
 
     const handleClose = (_: React.SyntheticEvent<unknown>, reason?: string) => {
         if (reason !== 'backdropClick') {
@@ -168,7 +159,6 @@ const ReferralStatusDialog = (props: ReferralStatusDialogProps) => {
                 createdDate:new Date().toISOString()
               }
             props.onClose();
-            console.log('payload', payload);
         }
     }
 
@@ -176,7 +166,7 @@ const ReferralStatusDialog = (props: ReferralStatusDialogProps) => {
         const { value,name }= event.target;
         setStatus(value as ReferralStatus);
         setFormData({...formData,[name]:value})
-      };
+    };
 
     const handleOwnerChange = (event: SelectChangeEvent<string>) => {
         const { value, name } = event.target;
@@ -189,7 +179,7 @@ const ReferralStatusDialog = (props: ReferralStatusDialogProps) => {
       setFormData({...formData,[name]:value})
       // Set the new text length state
       setTextLength(value.length);
-  };
+    };
 
     const handleChangePage = (
         event: React.MouseEvent<HTMLButtonElement> | null,
@@ -203,18 +193,16 @@ const ReferralStatusDialog = (props: ReferralStatusDialogProps) => {
       ) => {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
-      }
+      };
 
-      const handleSave = () => {
+    const handleSave = () => {
         const {businessStatus,owner,note}= formData;
-        console.log("formData",formData)
-        // alert(taskById)
         const taskById:any =  props.tasks?.taskFHIRId;
-        console.log("taskById",taskById)
         const payload =[];
+
         if (taskById  !== null) {
           if (businessStatus!=="") {
-          payload.push( { "op": "replace", "path": "/businessStatus/text", "value":businessStatus})
+              payload.push( { "op": "replace", "path": "/businessStatus/text", "value":businessStatus})
           }
           if (owner !== "") {
             // Find the owner ID using the provided owner name
@@ -224,45 +212,67 @@ const ReferralStatusDialog = (props: ReferralStatusDialogProps) => {
             // Update the owner's reference and display properties
             payload.push( { "op": "replace", "path": "/owner/reference", "value":'PractitionerRole/' + practitionerRoleId})
             payload.push( { "op": "replace", "path": "/owner/display", "value":owner})
-        }
-        // Assuming note to be a string, add it to the note array
-      if (note && note.trim() !== "" && owner !== "" && noNotes) {
-        console.log("adding first note");
-        setnoNotes(false);
-        const ownerid = props.practitionerRole?.find((x: ACLPractitionerRole) => x.practitionerName === owner);
-        const { practitionerid } = ownerid;
-        payload.push( { "op": "add", "path": "/note", "value":{
-          "authorReference": {
-            "display": `${owner}`,
-            "reference": "Practitioner/" + practitionerid
-          },
-          "text": `${note}`,
-          "time": new Date().toISOString()
-        }});
-    }
-    if (note && note.trim() !== "" && owner !== "" && !noNotes) {
-      console.log("appending second note");
-      setnoNotes(false);
-      const ownerid = props.practitionerRole?.find((x: ACLPractitionerRole) => x.practitionerName === owner);
-      const { practitionerid } = ownerid;
-      payload.push( { "op": "add", "path": "/note/-", "value":{
-        "authorReference": {
-          "display": `${owner}`,
-          "reference": "Practitioner/" + practitionerid
-        },
-        "text": `${note}`,
-        "time": new Date().toISOString()
-      }});
-  }
-    console.log("payload",payload)
-    updateData(taskById,payload).then((res)=>{
-          console.log(res)
+          }
+          // Assuming note to be a string, add it to the note array
+          if (note && note.trim() !== "" && owner !== "" && noNotes) {
+            setnoNotes(false);
+            const ownerid = props.practitionerRole?.find((x: ACLPractitionerRole) => x.practitionerName === owner);
+            const { practitionerid } = ownerid;
+            payload.push( { "op": "add", "path": "/note", "value":{
+              "authorReference": {
+              "display": `${owner}`,
+              "reference": "Practitioner/" + practitionerid
+            },
+            "text": `${note}`,
+            "time": new Date().toISOString()
+            }});
+          }
+          if (note && note.trim() !== "" && owner !== "" && !noNotes) {
+            setnoNotes(false);
+            const ownerid = props.practitionerRole?.find((x: ACLPractitionerRole) => x.practitionerName === owner);
+            const { practitionerid } = ownerid;
+            payload.push( { "op": "add", "path": "/note/-", "value":{
+              "authorReference": {
+              "display": `${owner}`,
+              "reference": "Practitioner/" + practitionerid
+            },
+            "text": `${note}`,
+            "time": new Date().toISOString()
+            }});
+          }
+          if (note && note.trim() !== "" && noNotes) {;
+            setnoNotes(false);
+            const ownerid = props.practitionerRole?.find((x: ACLPractitionerRole) => x.practitionerName === taskOwner);
+            const { practitionerid } = ownerid;
+            payload.push( { "op": "add", "path": "/note", "value":{
+              "authorReference": {
+              "display": `${taskOwner}`,
+              "reference": "Practitioner/" + practitionerid
+            },
+            "text": `${note}`,
+            "time": new Date().toISOString()
+            }});
+          }
+          if (note && note.trim() !== "" && !noNotes) {
+            setnoNotes(false);
+            const ownerid = props.practitionerRole?.find((x: ACLPractitionerRole) => x.practitionerName === taskOwner);
+            const { practitionerid } = ownerid;
+            payload.push( { "op": "add", "path": "/note/-", "value":{
+              "authorReference": {
+              "display": `${taskOwner}`,
+              "reference": "Practitioner/" + practitionerid
+            },
+            "text": `${note}`,
+            "time": new Date().toISOString()
+            }});
+          }
+          updateData(taskById,payload).then((res)=>{
           props.getData();
           props.onClose();
           alert("Task Resource is been updated successfully");
-        })
-      }
-}
+          })
+        }
+    }
 
     const {patient,service,tasks } = props;
 
@@ -323,9 +333,36 @@ const ReferralStatusDialog = (props: ReferralStatusDialogProps) => {
                         <Table sx={{ minWidth: 700 }} aria-label="custom pagination table">
                             <TableHead>
                               <TableRow>
-                                <TableCell>Note text</TableCell>
-                                <TableCell>Author</TableCell>
-                                <TableCell>Date</TableCell>
+                                <TableCell>
+                                  <TableSortLabel
+                                    active={sortColumn === "noteText"}
+                                    direction={sortDirection}
+                                    onClick={() => handleRequestSort("noteText")}
+                                  ><b>
+                                    Note Text
+                                  </b>
+                                  </TableSortLabel>
+                                </TableCell>
+                                <TableCell>
+                                  <TableSortLabel
+                                    active={sortColumn === "noteAuthor"}
+                                    direction={sortDirection}
+                                    onClick={() => handleRequestSort("noteAuthor")}
+                                  ><b>
+                                    Author
+                                  </b>
+                                  </TableSortLabel>
+                                </TableCell>
+                                <TableCell>
+                                  <TableSortLabel
+                                    active={sortColumn === "noteAuthoredDate"}
+                                    direction={sortDirection}
+                                    onClick={() => handleRequestSort("noteAuthoredDate")}
+                                  ><b>
+                                    Date
+                                  </b>
+                                  </TableSortLabel>
+                                </TableCell>
                               </TableRow>
                             </TableHead>
                             <TableBody>
@@ -340,12 +377,12 @@ const ReferralStatusDialog = (props: ReferralStatusDialogProps) => {
                                         </div>
                                       </TableCell>
                                     </TableRow>
-                                  : tasks?.taskNotes?.map((tasknote : any, index) => (
-                                    <TableRow key={index}>
-                                      <TableCell width={800}>{tasknote?.noteText}</TableCell>
-                                      <TableCell>{tasknote?.noteAuthor}</TableCell>
-                                      <TableCell>{tasknote?.noteAuthoredDate}</TableCell>
-                                    </TableRow>
+                                  : sortedNotes.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((tasknote : any, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell width={800}>{tasknote?.noteText}</TableCell>
+                                            <TableCell>{tasknote?.noteAuthor}</TableCell>
+                                            <TableCell>{tasknote?.noteAuthoredDate}</TableCell>
+                                        </TableRow>
                                 ))}
                             </TableBody>
                             <TableFooter>
@@ -353,15 +390,9 @@ const ReferralStatusDialog = (props: ReferralStatusDialogProps) => {
                                 <TablePagination
                                     rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
                                     colSpan={3}
-                                    count={rows.length}
+                                    count={tasks?.taskNotes?.length || 0}
                                     rowsPerPage={rowsPerPage}
                                     page={page}
-                                    SelectProps={{
-                                        inputProps: {
-                                        'aria-label': 'rows per page',
-                                        },
-                                    native: true,
-                                    }}
                                     onPageChange={handleChangePage}
                                     onRowsPerPageChange={handleChangeRowsPerPage}
                                     ActionsComponent={TablePaginationActions}

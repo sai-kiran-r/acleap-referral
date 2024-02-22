@@ -2,21 +2,6 @@
 import axios from 'axios';
 import { Patient, PractitionerRole, ServiceRequest, Task } from 'fhir/r4';
 
-
-// Define a TypeScript type for the function response
-type PingServerResponse = {
-  success: boolean;
-  message?: any;
-  data?:any
-};
-
-interface UpdateTaskRequest {
-  taskId: string;
-  newStatus: string;
-  newOwnerReference: string;
-  newNoteText: string;
-}
-
 const URL = `https://acleapbackendservice.azurewebsites.net`
 // const URL = `http://localhost:3000`
 
@@ -68,20 +53,6 @@ export const updateData=async(taskById:string,payload:any)  =>{
 }
 }
 
-// // Function to call the backend endpoint
-// const updateTask = async (data: UpdateTaskRequest) => {
-//   try {
-//     const response = await axios.post('http://localhost:3000/updateTask', data);
-//     console.log(response.data.message);
-//     // Handle success (e.g., show a success message)
-//   } catch (error) {
-//     console.error("Error updating task:", error.response?.data?.error || error.message);
-//     // Handle error (e.g., show an error message)
-//   }
-// };
-
-
-
 // Create an async function to ping the server
 const pingServer = async () => {
   const serverURLTask: string = `${URL}/Task`; // Replace with your server URL
@@ -93,9 +64,6 @@ const pingServer = async () => {
   const patient : Patient = await getData(serverURLPatient) as Patient;
   const serviceRequests : ServiceRequest[] = await getData(serverURLServ) as ServiceRequest[]
   const practitionerRole : PractitionerRole[] = await getData(serverURLRole)
-  // const practitionerRole = await getData(serverURLRole)
-  // const practitionerRole = await getData(serverURLTask)
-
 
   return { patient , serviceRequests, tasks,  practitionerRole};
 };
