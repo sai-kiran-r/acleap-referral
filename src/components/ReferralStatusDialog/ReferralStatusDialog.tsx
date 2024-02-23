@@ -349,7 +349,7 @@ const ReferralStatusDialog = (props: ReferralStatusDialogProps) => {
                                     direction={sortDirection}
                                     onClick={() => handleRequestSort("noteAuthor")}
                                   ><b>
-                                    Author
+                                    Assigned Owner
                                   </b>
                                   </TableSortLabel>
                                 </TableCell>
