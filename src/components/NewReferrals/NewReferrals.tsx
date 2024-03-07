@@ -32,12 +32,13 @@ const colorChips:any = {
 }
 
 const columns: GridColDef[] = [
-  { field: 'taskAuthoredDate', headerName: 'Date Requested', width:200 },
-  { field: 'lastName', headerName: 'Last name', width:140 },
-  { field: 'firstName',headerName: 'First Name', width:140 },
+  { field: 'taskAuthoredDate', headerName: 'Date Requested', width:140 },
+  { field: 'lastName', headerName: 'Last name', width:120 },
+  { field: 'firstName',headerName: 'First Name', width:120 },
   { field: 'serviceRequested', headerName: 'Service Requested', width:250 },
-  { field: 'referralSource',headerName: 'Referral Source', width:200 },
-  { field: 'taskBusinessStatus',headerName: 'Task Status',renderCell:renderRating, width:180 },
+  { field: 'referralSource',headerName: 'Referral Source', width:180 },
+  { field: 'taskBusinessStatus',headerName: 'Task Status',renderCell:renderRating, width:140 },
+  { field: 'taskOwner',headerName: 'Task Owner', width:140 }
 ];
 
 function renderRating(params: any) {
@@ -90,13 +91,21 @@ const NewReferrals = () => {
             if (matchingPatient && matchingTask &&
                 typeof matchingPatient.firstName === 'string' && typeof matchingPatient.lastName === 'string' &&
                 typeof matchingTask.taskAuthoredDate === 'string' && typeof matchingTask.taskBusinessStatus === 'string') {
+                    let matchedTaskOwner: string;
+                    if(matchingTask.taskOwner === "Dr. Onwers"){
+                        matchedTaskOwner = "UnAssigned"
+                    }
+                    else{
+                        matchedTaskOwner = matchingTask.taskOwner
+                    }
                 return {
                     ...item,
                     referralSource: matchingTask.taskRequester,
                     firstName: matchingPatient.firstName,
                     lastName: matchingPatient.lastName,
                     taskAuthoredDate: matchingTask.taskAuthoredDate,
-                    taskBusinessStatus: matchingTask.taskBusinessStatus
+                    taskBusinessStatus: matchingTask.taskBusinessStatus,
+                    taskOwner: matchedTaskOwner
                 };
             }
 
