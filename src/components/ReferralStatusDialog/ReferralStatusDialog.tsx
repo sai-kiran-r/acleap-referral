@@ -106,7 +106,9 @@ const ReferralStatusDialog = (props: ReferralStatusDialogProps) => {
     const [textLength, setTextLength] = useState(0);
     const [noNotes, setnoNotes] = useState<boolean>(true);
     const [sortColumn, setSortColumn] = useState<string | null>(null);
-    const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+    const [sortDirection, setSortDirection] = useState<"desc" | "asc">("desc");
+    
+
 
     useEffect(() => {
       if (props.tasks) {
@@ -134,22 +136,29 @@ const ReferralStatusDialog = (props: ReferralStatusDialogProps) => {
   }, [props.tasks, props.practitionerRole]);
 
     const handleRequestSort = (columnKey: string) => {
-      const newSortDirection =
+      const newSortDirection = 
           sortColumn === columnKey && sortDirection === "desc" ? "asc" : "desc";
       setSortColumn(columnKey);
       setSortDirection(newSortDirection);
     };
-
-    const sortedNotes = props.tasks?.taskNotes? [...props.tasks?.taskNotes].sort((a, b) => {
-          const valueA = sortColumn ? a[sortColumn] : "";
-          const valueB = sortColumn ? b[sortColumn] : "";
-              if (sortDirection === "asc") {
-                  return valueA.localeCompare(valueB);
-              } else {
-                  return valueB.localeCompare(valueA);
-              }
-          })
-        : [];
+    
+    interface ACLNote {
+      noteText: string;
+      noteAuthor: string;
+      noteAuthoredDate: string; 
+  }
+  
+    const sortedNotes = props.tasks?.taskNotes ? [...props.tasks?.taskNotes].sort((a: ACLNote, b: ACLNote) => {
+      const dateA = new Date(a.noteAuthoredDate);
+      const dateB = new Date(b.noteAuthoredDate);
+  
+      if (sortDirection === "asc") {
+          return dateA.getTime() - dateB.getTime();
+      } else {
+          return dateB.getTime() - dateA.getTime();
+      }
+  }) : [];
+  
 
     const handleClose = (_: React.SyntheticEvent<unknown>, reason?: string) => {
         if (reason !== 'backdropClick') {
