@@ -2,8 +2,7 @@
 import axios from 'axios';
 import { Patient, PractitionerRole, ServiceRequest, Task } from 'fhir/r4';
 
-const URL = `https://acleapbackendservice.azurewebsites.net`
-// const URL = `http://localhost:3000`
+const URL = process.env.REACT_APP_BACKEND_API_URL
 
 const getData=async(url:string)  =>{
   try {

@@ -32,14 +32,14 @@ const colorChips:any = {
 }
 
 const columns: GridColDef[] = [
-  { field: 'taskAuthoredDate', headerName: 'Date Requested', width:140 },
-  { field: 'lastName', headerName: 'Last name', width:120 },
-  { field: 'firstName',headerName: 'First Name', width:120 },
-  { field: 'serviceRequested', headerName: 'Service Requested', width:250 },
-  { field: 'referralSource',headerName: 'Referral Source', width:180 },
-  { field: 'taskBusinessStatus',headerName: 'Task Status',renderCell:renderRating, width:140 },
-  { field: 'taskOwner',headerName: 'Task Owner', width:140 }
-];
+    { field: 'taskAuthoredDate', headerName: 'Date Requested', width: 140 },
+    { field: 'lastName', headerName: 'Last name', width: 120 },
+    { field: 'firstName', headerName: 'First Name', width: 120 },
+    { field: 'serviceRequested', headerName: 'Service Requested', width: 250 },
+    { field: 'referralSource', headerName: 'Referral Source', width: 180 },
+    { field: 'taskBusinessStatus',headerName: 'Task Status',renderCell:renderRating, width:140 },
+    { field: 'taskOwner', headerName: 'Task Owner', width: 140 }
+  ];
 
 function renderRating(params: any) {
     return <Chip label={params.value} color={colorChips[params.value]}/>;
