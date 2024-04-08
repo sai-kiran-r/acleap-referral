@@ -60,7 +60,7 @@ const NewReferrals = () => {
       React.useEffect(() => {
         getData();
     }, [])
-    
+
     const  getData = async()=>{
         const resources : any = await pingServer();
         const PatientData  = resources.patient.map((patient: any) => patient.resource);
@@ -86,7 +86,7 @@ const NewReferrals = () => {
             // Attempt to find a matching patient and task
             const matchingPatient = transformedPatient.find((p: ACLPatient) => p.patientFhirId === item.serviceRequestPatientId);
             const matchingTask = transformedTasks.find((x: ACLTasks) => x.taskServiceRequestId === item.serviceRequestFHIRId);
-              
+
             // Only proceed if both a matching patient and task are found and their data is complete
             if (matchingPatient && matchingTask &&
                 typeof matchingPatient.firstName === 'string' && typeof matchingPatient.lastName === 'string' &&
@@ -112,6 +112,13 @@ const NewReferrals = () => {
             // Return null for unmatched or incomplete data to filter out later
             return null;
         }).filter((item : EnrichedServiceRequest | null): item is EnrichedServiceRequest => item !== null); // Remove any service requests that didn't match or were incomplete
+
+            // Sort the data to show "Received" tasks on the top
+        data.sort((a: { taskBusinessStatus: string; }, b: { taskBusinessStatus: string; }) => {
+            if (a.taskBusinessStatus === "Received") return -1;
+            if (b.taskBusinessStatus === "Received") return 1;
+            return 0;
+        });
 
         setServices(data)
     }
